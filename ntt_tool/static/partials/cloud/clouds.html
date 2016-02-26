@@ -1,0 +1,36 @@
+<ng-include src="'/static/partials/common/header.html'"></ng-include>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-header">
+                <a href="#/clouds/add/" class="btn btn-primary pull-right">
+                   <i class="fa fa-plus-circle fa-fw"></i> Add Cloud
+                </a>
+                <h1><i class="fa fa-cloud fa-fw"></i> Clouds</h1>
+            </div>
+
+            <table class="table table-bordered bg-white">
+                <tr>
+                    <th>Name</th>
+                    <th>Keystone Auth URL</th>
+                    <th>Keystone User</th>
+                    <th>Keystone Tenant Name</th>
+                    <th>Created On</th>
+                    <th>Actions</th>
+                </tr>
+                <tr ng-repeat="cloud in clouds">
+                    <td><a href="#/cloud/{$ cloud.id $}/">{$ cloud.name $}</a></td>
+                    <td>{$ cloud.keystone_auth_url $}</td>
+                    <td>{$ cloud.keystone_user $}</td>
+                    <td>{$ cloud.keystone_tenant_name $}</td>
+                    <td>{$ cloud.created_on $}</td>
+                    <td>
+                        <span class="text-info"><i class="fa fa-edit fa-fw"></i></span>
+                        <span class="text-danger"><i class="fa fa-trash-o fa-fw"></i></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

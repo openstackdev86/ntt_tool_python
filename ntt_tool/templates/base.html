@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="nttApp">
+<head>
+    <meta charset="UTF-8">
+    <title>NTT Tool</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% block css %}{% endblock %}
+
+    <script type="text/javascript" src="{% static 'js/libs/jquery-2.2.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/angular.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/angular/angular-cookies.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libs/angular/angular-route.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/app.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/interceptors/http-auth-interceptor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/auth.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/controllers/maincontroller.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/services/dataservice.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/services/cloudservice.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/apps/controllers/cloudcontroller.js' %}"></script>
+    {% block js %}{% endblock %}
+</head>
+<body>
+    <div ng-view></div>
+</body>
+</html>

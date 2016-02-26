@@ -1,0 +1,23 @@
+<ng-include src="'/static/partials/common/header.html'"></ng-include>
+
+<div class="container">
+    <h1>Network Traffic Testing Tool</h1>
+    <div class="row" ng-controller="LoginCtrl" ng-hide="$root.isLoggedin">
+        <form role="form" ng-submit="login()">
+                <h4 class="modal-title" id="loginModalLabel">Login</h4>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" ng-model="credentials.username">
+                </div>
+                <div class="form-group">
+                    <label for="pwd">Password:</label>
+                    <input type="password" class="form-control" id="pwd" ng-model="credentials.password">
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+    </div>
+    <div class="row" ng-show="$root.isLoggedin">
+        <h4>You are logged in.</h4>
+    </div>
+</div>

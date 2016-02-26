@@ -1,0 +1,125 @@
+<ng-include src="'/static/partials/common/header.html'"></ng-include>
+
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h1>Cloud Traffic Details</h1>
+        <div>
+        <div class="col-md-8">
+            <br>
+            <div class="panel panel-info">
+                <div class="panel-heading">Cloud Details</div>
+                <table class="table">
+                    <tr>
+                        <td class="text-right col-md-3">Name : </td>
+                        <td class="text-info col-md-3">{$ cloud.name $}</td>
+                        <td class="text-right col-md-3">Keystone Auth URL : </td>
+                        <td class="text-info col-md-3">{$ cloud.keystone_auth_url $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right col-md-3">Keystone Tenant Name : </td>
+                        <td class="text-info col-md-3">{$ cloud.keystone_tenant_name $}</td>
+                        <td class="text-right col-md-3">Keystone User : </td>
+                        <td class="text-info col-md-3">{$ cloud.keystone_user $}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="panel panel-info">
+                <table class="table">
+                    <tr>
+                        <td class="text-right col-md-3">Cloud Traffic Name : </td>
+                        <td class="text-info">{$ cloudTraffic.name $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Allowed Delta Percentage : </td>
+                        <td class="text-info">{$ cloudTraffic.allowed_delta_percentage $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Test Result Path : </td>
+                        <td class="text-info">{$ cloudTraffic.test_result_path $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Number Of Workers : </td>
+                        <td class="text-info">{$ cloudTraffic.number_of_workers $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Remote User : </td>
+                        <td class="text-info">{$ cloudTraffic.remote_user $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Test Method : </td>
+                        <td class="text-info">{$ cloudTraffic.test_method $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">IPERF Duration : </td>
+                        <td class="text-info">{$ cloudTraffic.iperf_duration $}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Type : </td>
+                        <td class="text-info">{$ cloudTraffic.tenant_type $}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <br>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#addTenantModal">Add Tenant</button>
+                    <b>Tenants</b>
+                </div>
+                <table class="table table-bordered bg-white">
+                    <tr>
+                        <th>Tenant Name</th>
+                        <th>SSH Gateway</th>
+                        <th>Actionss</th>
+                    </tr>
+                    <tr ng-repeat="tenantObj in tenants">
+                        <td>{$ tenantObj.tenant_name $}</td>
+                        <td>{$ tenantObj.ssh_gateway $}</td>
+                        <td>
+                            <span class="text-info"><i class="fa fa-edit fa-fw"></i></span>
+                            <span class="text-danger"><i class="fa fa-trash-o fa-fw"></i></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <br>
+            <div class="panel panel-default" ng-if="tenants.length > 0">
+                <div class="panel-heading">External Host</div>
+                <div class="panel-body">
+                    <input type="text" class="form-control" ng-model="cloudTraffic.external_host" >
+                    <button type="button" class="btn btn-primary" ng-click="saveExternalHost()">Save & Start Traffic</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="addTenantModal" class="modal fade">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add Tenant</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tenant Name</label>
+                    <input type="text" class="form-control" ng-model="tenant.tenant_name">
+                </div>
+                <div class="form-group">
+                    <label>SSH Gateway</label>
+                    <input type="text" class="form-control" ng-model="tenant.ssh_gateway">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-click="addTenant()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

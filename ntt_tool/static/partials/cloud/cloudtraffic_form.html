@@ -1,0 +1,53 @@
+<ng-include src="'/static/partials/common/header.html'"></ng-include>
+
+<div class="container">
+    <div class="row">
+        <pre>{$ cloud | json $}</pre>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Add Cloud Traffic</h1>
+            <h4>Cloud > Traffic</h4>
+            <form name="cloudtraffic" ng-submit="save()">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="name" ng-model="cloudTraffic.name">
+                </div>
+                <div class="form-group">
+                    <label>Allowed Delta Percentage</label>
+                    <input type="text" class="form-control" id="allowed_delta_percentage" ng-model="cloudTraffic.allowed_delta_percentage">
+                </div>
+                <div class="form-group">
+                    <label>Test Result Path</label>
+                    <input type="text" class="form-control" id="test_result_path" ng-model="cloudTraffic.test_result_path">
+                </div>
+                <div class="form-group">
+                    <label>Number Of Workers</label>
+                    <input type="text" class="form-control" id="number_of_workers" ng-model="cloudTraffic.number_of_workers">
+                </div>
+                <div class="form-group">
+                    <label>Remote Username</label>
+                    <input type="text" class="form-control" id="remote_user" ng-model="cloudTraffic.remote_user">
+                </div>
+                <div class="form-group">
+                    <label>Remote Password</label>
+                    <input type="text" class="form-control" id="remote_pass" ng-model="cloudTraffic.remote_pass">
+                </div>
+                <div class="form-group">
+                    <label>Test Method</label>
+                    <input type="text" class="form-control" id="test_method" ng-model="cloudTraffic.test_method">
+                </div>
+                <div class="form-group">
+                    <label>IPERF Duration</label>
+                    <input type="text" class="form-control" id="iperf_duration" ng-model="cloudTraffic.iperf_duration">
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <input type="text" class="form-control" id="type" ng-model="cloudTraffic.tenant_type">
+                </div>
+                <a href="#/cloud/{$ cloud.id $}/" class="btn btn-default">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
