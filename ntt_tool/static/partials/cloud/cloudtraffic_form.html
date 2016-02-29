@@ -1,49 +1,53 @@
 <ng-include src="'/static/partials/common/header.html'"></ng-include>
 
 <div class="container">
+    <!--
     <div class="row">
         <pre>{$ cloud | json $}</pre>
     </div>
+    -->
     <div class="row">
         <div class="col-md-12">
             <h1>Add Cloud Traffic</h1>
             <h4>Cloud > Traffic</h4>
             <form name="cloudtraffic" ng-submit="save()">
                 <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-control" id="name" ng-model="cloudTraffic.name">
+                    <label>Name</label><span> * </span>
+                    <input type="text" class="form-control" id="name" ng-model="cloudTraffic.name" required>
                 </div>
                 <div class="form-group">
                     <label>Allowed Delta Percentage</label>
-                    <input type="text" class="form-control" id="allowed_delta_percentage" ng-model="cloudTraffic.allowed_delta_percentage">
+                    <input type="number" class="form-control" id="allowed_delta_percentage" ng-model="cloudTraffic.allowed_delta_percentage" required>
                 </div>
                 <div class="form-group">
                     <label>Test Result Path</label>
-                    <input type="text" class="form-control" id="test_result_path" ng-model="cloudTraffic.test_result_path">
+                    <input type="text" class="form-control" id="test_result_path" ng-model="cloudTraffic.test_result_path" required>
                 </div>
                 <div class="form-group">
                     <label>Number Of Workers</label>
-                    <input type="text" class="form-control" id="number_of_workers" ng-model="cloudTraffic.number_of_workers">
+                    <input type="number" class="form-control" id="number_of_workers" ng-model="cloudTraffic.number_of_workers" required>
                 </div>
                 <div class="form-group">
                     <label>Remote Username</label>
-                    <input type="text" class="form-control" id="remote_user" ng-model="cloudTraffic.remote_user">
+                    <input type="text" class="form-control" id="remote_user" ng-model="cloudTraffic.remote_user" required>
                 </div>
                 <div class="form-group">
                     <label>Remote Password</label>
-                    <input type="text" class="form-control" id="remote_pass" ng-model="cloudTraffic.remote_pass">
+                    <input type="password" class="form-control" id="remote_pass" ng-model="cloudTraffic.remote_pass" required>
                 </div>
                 <div class="form-group">
                     <label>Test Method</label>
-                    <input type="text" class="form-control" id="test_method" ng-model="cloudTraffic.test_method">
+                    <div class="checkbox">
+                         <input type="text" class="form-control" id="test_method" ng-model="cloudTraffic.test_method" required>
+                    </div>                   
                 </div>
                 <div class="form-group">
                     <label>IPERF Duration</label>
-                    <input type="text" class="form-control" id="iperf_duration" ng-model="cloudTraffic.iperf_duration">
+                    <input type="number" class="form-control" id="iperf_duration" ng-model="cloudTraffic.iperf_duration" required>
                 </div>
                 <div class="form-group">
                     <label>Type</label>
-                    <input type="text" class="form-control" id="type" ng-model="cloudTraffic.tenant_type">
+                    <input type="text" class="form-control" id="type" ng-model="cloudTraffic.tenant_type" value="all" placeholder="All" required>
                 </div>
                 <a href="#/cloud/{$ cloud.id $}/" class="btn btn-default">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save</button>

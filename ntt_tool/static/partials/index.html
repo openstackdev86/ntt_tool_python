@@ -1,10 +1,10 @@
 <ng-include src="'/static/partials/common/header.html'"></ng-include>
 
 <div class="container">
-    <h1>Network Traffic Testing Tool</h1>
     <div class="row" ng-controller="LoginCtrl" ng-hide="$root.isLoggedin">
+    <div class="col-md-5 col-md-offset-3">
         <form role="form" ng-submit="login()">
-                <h4 class="modal-title" id="loginModalLabel">Login</h4>
+                <h2 class="form_h2" id="loginModalLabel">Login to your Account </h2> <hr>
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" class="form-control" id="username" ng-model="credentials.username">
@@ -13,11 +13,12 @@
                     <label for="pwd">Password:</label>
                     <input type="password" class="form-control" id="pwd" ng-model="credentials.password">
                 </div>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
         </form>
+    </div>
     </div>
     <div class="row" ng-show="$root.isLoggedin">
         <h4>You are logged in.</h4>
     </div>
 </div>
+
