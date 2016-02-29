@@ -39,7 +39,12 @@ nttApp.config(['$routeProvider', function($routeProvider){
         templateUrl: '/static/partials/cloud/cloud_view.html',
     });
 
-    $routeProvider.when('/clouds/add/', {
+    $routeProvider.when('/clouds/:event/', {
+        controller: 'CloudCtrl',
+        templateUrl: '/static/partials/cloud/cloud.html',
+    });
+
+    $routeProvider.when('/clouds/:event/:cloudId/', {
         controller: 'CloudCtrl',
         templateUrl: '/static/partials/cloud/cloud.html',
     });

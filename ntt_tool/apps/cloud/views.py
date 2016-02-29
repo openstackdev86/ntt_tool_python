@@ -11,8 +11,8 @@ from serializers import *
 class CloudViewSet(viewsets.ModelViewSet):
     queryset = Cloud.objects.all()
     serializer_class = CloudSerializer
-    authentication_classes = (JSONWebTokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = [JSONWebTokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 class CloudTrafficListView(generics.ListAPIView):
@@ -29,16 +29,6 @@ class CloudTrafficViewSet(viewsets.ModelViewSet):
     serializer_class = CloudTrafficSerializer
     authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-
-    def update(self, request, *args, **kwargs):
-        import pdb
-        pdb.set_trace()
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
 
 
 # class CloudTrafficRetrieveView(generics.RetrieveAPIView):

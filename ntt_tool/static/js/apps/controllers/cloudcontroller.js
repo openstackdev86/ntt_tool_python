@@ -6,11 +6,20 @@ nttApp.controller('CloudsCtrl', function($scope, cloudService){
         })
     };
     $scope.getClouds();
+
+    $scope.delete = function($index){
+        if(confirm("Are you sure want to delete?")){
+            cloudService.delete($scope.clouds[$index].id).then(function(data){
+               $scope.clouds.splice($index, 1);
+            });
+        }
+    };
 });
 
 
 nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
     $scope.cloudId = $routeParams.cloudId;
+    $scope.event = $routeParams.event;
     $scope.cloud = {};
     $scope.cloudTrafficList = [];
 
@@ -25,9 +34,17 @@ nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudSe
     };
 
     $scope.save = function(){
-        cloudService.save($scope.cloud).then(function (data) {
-            $location.path("cloudtraffic/add/"+ data.id +"/");
-        });
+        if ($scope.event == 'add'){
+            cloudService.create($scope.cloud).then(function (data) {
+                $location.path("cloudtraffic/add/"+ data.id +"/");
+            });
+        }
+        else {
+            cloudService.update($scope.cloud.id, $scope.cloud).then(function(data){
+               $location.path("cloud/"+$scope.cloud.id+"/");
+            });
+        };
+
     };
 });
 
