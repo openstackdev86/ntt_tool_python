@@ -6,6 +6,7 @@ class CloudSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cloud
+        exclude = ('updated_on',)
 
 
 class CloudTrafficListSerializer(serializers.ModelSerializer):

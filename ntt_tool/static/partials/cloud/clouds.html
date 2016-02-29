@@ -10,7 +10,7 @@
                 <h1><i class="fa fa-cloud fa-fw"></i> Clouds</h1>
             </div>
 
-            <table class="table table-bordered bg-white">
+            <table class="table table-bordered bg-white" ng-show="clouds.length > 0">
                 <tr>
                     <th>Name</th>
                     <th>Keystone Auth URL</th>
@@ -24,13 +24,15 @@
                     <td>{$ cloud.keystone_auth_url $}</td>
                     <td>{$ cloud.keystone_user $}</td>
                     <td>{$ cloud.keystone_tenant_name $}</td>
-                    <td>{$ cloud.created_on $}</td>
+                    <td>{$ cloud.created_on | date:"MM/dd/yyyy hh:mm a" $}</td>
                     <td>
-                        <span class="text-info"><i class="fa fa-edit fa-fw"></i></span>
-                        <span class="text-danger"><i class="fa fa-trash-o fa-fw"></i></span>
+                        <a href="#/clouds/edit/{$ cloud.id $}/" class="text-info"><i class="fa fa-edit fa-fw"></i></a>
+                        <a href class="text-danger" ng-click="delete($index)"><i class="fa fa-trash-o fa-fw"></i></a>
                     </td>
                 </tr>
             </table>
+
+            <div ng-hide="clouds.length > 0">Data not found.</div>
         </div>
     </div>
 </div>

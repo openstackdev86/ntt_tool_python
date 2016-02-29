@@ -79,8 +79,8 @@
                         <td>{$ tenantObj.tenant_name $}</td>
                         <td>{$ tenantObj.ssh_gateway $}</td>
                         <td>
-                            <span class="text-info"><i class="fa fa-edit fa-fw"></i></span>
-                            <span class="text-danger"><i class="fa fa-trash-o fa-fw"></i></span>
+                            <a href data-toggle="modal" data-target="#addTenantModal" class="text-info" ng-click="getTenant($index)"><i class="fa fa-edit fa-fw"></i></a>
+                            <a href class="text-danger" ng-click="deleteTenant($index)"><i class="fa fa-trash-o fa-fw"></i></a></span>
                         </td>
                     </tr>
                 </table>
@@ -104,7 +104,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add Tenant</h4>
+                <h4 class="modal-title">{$ tenantEvent | capitalize:true $} Tenant</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -118,7 +118,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" ng-click="addTenant()">Save</button>
+                <button type="button" class="btn btn-primary" ng-click="addTenant()" ng-show="tenantEvent == 'add'">Save</button>
+                <button type="button" class="btn btn-primary" ng-click="editTenant($index)" ng-show="tenantEvent == 'edit'">Save</button>
             </div>
         </div>
     </div>

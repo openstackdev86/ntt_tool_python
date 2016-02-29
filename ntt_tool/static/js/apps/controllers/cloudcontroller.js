@@ -6,11 +6,20 @@ nttApp.controller('CloudsCtrl', function($scope, cloudService){
         })
     };
     $scope.getClouds();
+
+    $scope.delete = function($index){
+        if(confirm("Are you sure want to delete?")){
+            cloudService.delete($scope.clouds[$index].id).then(function(data){
+               $scope.clouds.splice($index, 1);
+            });
+        }
+    };
 });
 
 
 nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
     $scope.cloudId = $routeParams.cloudId;
+    $scope.event = $routeParams.event;
     $scope.cloud = {};
     $scope.cloudTrafficList = [];
 
@@ -25,26 +34,56 @@ nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudSe
     };
 
     $scope.save = function(){
-        cloudService.save($scope.cloud).then(function (data) {
-            $location.path("cloudtraffic/add/"+ data.id +"/");
-        });
+        if ($scope.event == 'add'){
+            cloudService.create($scope.cloud).then(function (data) {
+                $location.path("cloudtraffic/add/"+ data.id +"/");
+            });
+        }
+        else {
+            cloudService.update($scope.cloud.id, $scope.cloud).then(function(data){
+               $location.path("cloud/"+$scope.cloud.id+"/");
+            });
+        };
+
     };
+
+    $scope.deleteTraffic = function($index){
+        if(confirm("Are you sure want to delete?")) {
+            cloudTrafficService.delete($scope.cloudTrafficList[$index].id).then(function (data) {
+                $scope.cloudTrafficList.splice($index, 1);
+            });
+        }
+    }
 });
 
 
 
 nttApp.controller('CloudTrafficCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
     $scope.cloud = {};
+    $scope.event = $routeParams.event;
     cloudService.get($routeParams.cloudId).then(function(data){
         $scope.cloud = data;
     });
 
     $scope.cloudTraffic = {};
-    $scope.save = function(){
-        $scope.cloudTraffic["cloud"] = $scope.cloud.id;
-        cloudTrafficService.create($scope.cloudTraffic).then(function (data) {
-            $location.path("cloudtraffic/view/"+ data.id +"/");
+    if($scope.event == 'edit'){
+        cloudTrafficService.get($routeParams.trafficId).then(function(data){
+            $scope.cloudTraffic = data;
         });
+    };
+
+    $scope.save = function(){
+        if($scope.event == 'add') {
+            $scope.cloudTraffic["cloud"] = $scope.cloud.id;
+            cloudTrafficService.create($scope.cloudTraffic).then(function (data) {
+                $location.path("cloudtraffic/view/" + data.id + "/");
+            });
+        }
+        else{
+            cloudTrafficService.update($scope.cloudTraffic.id, $scope.cloudTraffic).then(function (data) {
+                $location.path("cloudtraffic/view/" + data.id + "/");
+            });
+        }
     };
 });
 
@@ -64,6 +103,7 @@ nttApp.controller('CloudTrafficViewCtrl', function($scope, $routeParams, $locati
         });
     }
 
+    $scope.tenantEvent = "Add";
     $scope.tenants = [];
     $scope.tenant = {};
     cloudTrafficTenantService.list($scope.cloudTrafficId).then(function(data){
@@ -71,18 +111,42 @@ nttApp.controller('CloudTrafficViewCtrl', function($scope, $routeParams, $locati
     });
 
     $scope.addTenant = function(){
+        $scope.tenantEvent = "Add";
         $scope.tenant["cloud_traffic_id"] = $scope.cloudTraffic.id;
-        cloudTrafficTenantService.save($scope.tenant).then(function(data){
-            $scope.tenant = {};
+        cloudTrafficTenantService.create($scope.tenant).then(function(data){
             $scope.tenants.push(data);
             $('#addTenantModal').modal('hide');
         });
     };
 
+    $scope.editTenant = function($index){
+        $scope.tenantEvent = "Edit";
+        $scope.tenant = angular.copy($scope.tenants[$index]);
+        cloudTrafficTenantService.update($scope.tenant.id, $scope.tenant).then(function(data){
+            $scope.tenant[$index] = data;
+            $('#addTenantModal').modal('hide');
+        });
+    };
+
+    $scope.saveTenant = function(event, $index){
+        cloudTrafficTenantService.save($scope.tenant).then(function(data){
+            $scope.tenant = {};
+            return data;
+        });
+    }
+
+    $scope.deleteTenant = function($index){
+        if(confirm("Are you sure you want to delete?")){
+            cloudTrafficTenantService.delete($scope.tenants[$index].id).then(function(data){
+               $scope.tenants.splice($index, 1);
+            });
+        }
+    };
+
     $scope.saveExternalHost = function(){
-        //cloudTrafficService.update($scope.cloudTraffic).then(function (data) {
+        cloudTrafficService.update($scope.cloudTraffic.id, $scope.cloudTraffic).then(function (data) {
             $location.path("cloudtraffictest");
-        //});
+        });
     };
 });
 

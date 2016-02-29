@@ -53,8 +53,8 @@
                     <td>{$ cloudTraffic.iperf_duration $}</td>
                     <td>{$ cloudTraffic.tenant_type $}</td>
                     <td>
-                        <span class="text-info"><i class="fa fa-edit fa-fw"></i></span>
-                        <span class="text-danger"><i class="fa fa-trash-o fa-fw"></i></span>
+                        <a href="#/cloudtraffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info"><i class="fa fa-edit fa-fw"></i></a>
+                        <a href class="text-danger" ng-click="deleteTraffic($index)"><i class="fa fa-trash-o fa-fw"></i></a></span>
                     </td>
                 </tr>
             </table>
