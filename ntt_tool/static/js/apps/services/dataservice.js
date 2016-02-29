@@ -60,7 +60,7 @@ nttApp.service('dataService', ['$http', '$q', function ($http, $q) {
         return deferred.promise;
     };
 
-    this.post2 = function (url, params) {
+    this.put = function (url, params) {
         var deferred = $q.defer();
         var request = $http.put(url, params);
         request.success(function (data, status, headers, config) {

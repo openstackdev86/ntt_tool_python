@@ -9,11 +9,10 @@ nttApp.service('cloudService', function(dataService){
         return dataService.post('/api/cloud/1/', params);
     };
     this.update = function(pk, params){
-        console.log(params)
-        return dataService.post2('/api/cloud/'+pk+'/', params);
+        return dataService.put('/api/cloud/'+pk+'/', params);
     };
-    this.delete = function(id){
-        return dataService.delete('/api/cloud/'+id+'/');
+    this.delete = function(pk){
+        return dataService.delete('/api/cloud/'+pk+'/');
     };
 });
 
@@ -27,8 +26,11 @@ nttApp.service('cloudTrafficService', function(dataService){
     this.create = function(params){
         return dataService.post('/api/cloudtraffic/', params);
     };
-    this.update = function(params){
-        return dataService.update('/api/cloudtraffic/', params);
+    this.update = function(pk, params){
+        return dataService.put('/api/cloudtraffic/'+pk+'/', params);
+    };
+    this.delete = function(pk){
+        return dataService.delete('/api/cloudtraffic/'+pk+'/');
     };
 });
 

@@ -46,22 +46,44 @@ nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudSe
         };
 
     };
+
+    $scope.deleteTraffic = function($index){
+        if(confirm("Are you sure want to delete?")) {
+            cloudTrafficService.delete($scope.cloudTrafficList[$index].id).then(function (data) {
+                $scope.cloudTrafficList.splice($index, 1);
+            });
+        }
+    }
 });
 
 
 
 nttApp.controller('CloudTrafficCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
     $scope.cloud = {};
+    $scope.event = $routeParams.event;
     cloudService.get($routeParams.cloudId).then(function(data){
         $scope.cloud = data;
     });
 
     $scope.cloudTraffic = {};
-    $scope.save = function(){
-        $scope.cloudTraffic["cloud"] = $scope.cloud.id;
-        cloudTrafficService.create($scope.cloudTraffic).then(function (data) {
-            $location.path("cloudtraffic/view/"+ data.id +"/");
+    if($scope.event == 'edit'){
+        cloudTrafficService.get($routeParams.trafficId).then(function(data){
+            $scope.cloudTraffic = data;
         });
+    };
+
+    $scope.save = function(){
+        if($scope.event == 'add') {
+            $scope.cloudTraffic["cloud"] = $scope.cloud.id;
+            cloudTrafficService.create($scope.cloudTraffic).then(function (data) {
+                $location.path("cloudtraffic/view/" + data.id + "/");
+            });
+        }
+        else{
+            cloudTrafficService.update($scope.cloudTraffic.id, $scope.cloudTraffic).then(function (data) {
+                $location.path("cloudtraffic/view/" + data.id + "/");
+            });
+        }
     };
 });
 
@@ -97,9 +119,9 @@ nttApp.controller('CloudTrafficViewCtrl', function($scope, $routeParams, $locati
     };
 
     $scope.saveExternalHost = function(){
-        //cloudTrafficService.update($scope.cloudTraffic).then(function (data) {
+        cloudTrafficService.update($scope.cloudTraffic.id, $scope.cloudTraffic).then(function (data) {
             $location.path("cloudtraffictest");
-        //});
+        });
     };
 });
 
