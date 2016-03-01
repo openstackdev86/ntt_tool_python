@@ -6,7 +6,7 @@ nttApp.service('cloudService', function(dataService){
         return dataService.get('/api/cloud/'+id+'/');
     };
     this.create = function(params){
-        return dataService.post('/api/cloud/1/', params);
+        return dataService.post('/api/cloud/', params);
     };
     this.update = function(pk, params){
         return dataService.put('/api/cloud/'+pk+'/', params);

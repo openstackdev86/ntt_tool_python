@@ -103,7 +103,7 @@ nttApp.controller('CloudTrafficViewCtrl', function($scope, $routeParams, $locati
         });
     }
 
-    $scope.tenantEvent = "Add";
+    $scope.tenantEvent = "add";
     $scope.tenants = [];
     $scope.tenant = {};
     cloudTrafficTenantService.list($scope.cloudTrafficId).then(function(data){
@@ -111,7 +111,7 @@ nttApp.controller('CloudTrafficViewCtrl', function($scope, $routeParams, $locati
     });
 
     $scope.addTenant = function(){
-        $scope.tenantEvent = "Add";
+        $scope.tenantEvent = "add";
         $scope.tenant["cloud_traffic_id"] = $scope.cloudTraffic.id;
         cloudTrafficTenantService.create($scope.tenant).then(function(data){
             $scope.tenants.push(data);
@@ -120,7 +120,7 @@ nttApp.controller('CloudTrafficViewCtrl', function($scope, $routeParams, $locati
     };
 
     $scope.editTenant = function($index){
-        $scope.tenantEvent = "Edit";
+        $scope.tenantEvent = "edit";
         $scope.tenant = angular.copy($scope.tenants[$index]);
         cloudTrafficTenantService.update($scope.tenant.id, $scope.tenant).then(function(data){
             $scope.tenant[$index] = data;

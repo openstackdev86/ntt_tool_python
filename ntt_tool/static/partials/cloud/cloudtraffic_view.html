@@ -73,13 +73,15 @@
                     <tr>
                         <th>Tenant Name</th>
                         <th>SSH Gateway</th>
-                        <th>Actionss</th>
+                        <th>Actions</th>
                     </tr>
                     <tr ng-repeat="tenantObj in tenants">
                         <td>{$ tenantObj.tenant_name $}</td>
                         <td>{$ tenantObj.ssh_gateway $}</td>
                         <td>
+                            <!--
                             <a href data-toggle="modal" data-target="#addTenantModal" class="text-info" ng-click="getTenant($index)"><i class="fa fa-edit fa-fw"></i></a>
+                            -->
                             <a href class="text-danger" ng-click="deleteTenant($index)"><i class="fa fa-trash-o fa-fw"></i></a></span>
                         </td>
                     </tr>
@@ -116,7 +118,6 @@
                     <input type="text" class="form-control" ng-model="tenant.ssh_gateway">
                 </div>
             </div>
-            <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" ng-click="addTenant()" ng-show="tenantEvent == 'add'">Save</button>
                 <button type="button" class="btn btn-primary" ng-click="editTenant($index)" ng-show="tenantEvent == 'edit'">Save</button>

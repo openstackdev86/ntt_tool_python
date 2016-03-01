@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ntt',
         'USER': 'root',
-        'PASSWORD': 'onecloud',
+        'PASSWORD': 'root',
         'HOST': 'localhost',
         'PORT': '3306',
     }
