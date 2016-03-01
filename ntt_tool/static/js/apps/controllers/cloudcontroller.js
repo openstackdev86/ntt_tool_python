@@ -65,7 +65,9 @@ nttApp.controller('CloudTrafficCtrl', function($scope, $routeParams, $location, 
         $scope.cloud = data;
     });
 
-    $scope.cloudTraffic = {};
+    $scope.cloudTraffic = {
+        "tenant_type": "all"
+    };
     if($scope.event == 'edit'){
         cloudTrafficService.get($routeParams.trafficId).then(function(data){
             $scope.cloudTraffic = data;

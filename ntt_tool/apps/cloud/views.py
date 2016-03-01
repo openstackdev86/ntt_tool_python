@@ -41,7 +41,8 @@ class CloudTrafficTenantsViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         traffic_id = self.request.GET.get("traffic_id")
-        queryset = self.filter_queryset(CloudTrafficTenants.objects.filter(cloud_traffic_id=traffic_id))
+        queryset = self.filter_queryset(
+                CloudTrafficTenants.objects.filter(cloud_traffic_id=traffic_id))
 
         page = self.paginate_queryset(queryset)
         if page is not None:
