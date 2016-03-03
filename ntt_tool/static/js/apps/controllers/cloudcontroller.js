@@ -1,60 +1,125 @@
-nttApp.controller('CloudsCtrl', function($scope, cloudService){
-    $scope.clouds = [];
-    $scope.getClouds = function(){
-        cloudService.list().then(function(data){
-            $scope.clouds = data;
-        })
-    };
-    $scope.getClouds();
+/**
+ * Controller to list all clouds and delete selected cloud
+ */
+nttApp.controller('CloudListCtrl', function($scope, cloudService){
+    $scope.cloudList = [];
+
+    cloudService.list().then(function(data){
+        $scope.cloudList = data;
+    });
 
     $scope.delete = function($index){
         if(confirm("Are you sure want to delete?")){
-            cloudService.delete($scope.clouds[$index].id).then(function(data){
-               $scope.clouds.splice($index, 1);
+            cloudService.delete($scope.cloudList[$index].id).then(function(data){
+               $scope.cloudList.splice($index, 1);
             });
         }
     };
 });
 
 
-nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
-    $scope.cloudId = $routeParams.cloudId;
-    $scope.event = $routeParams.event;
+nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudService){
+    $scope.id = $routeParams.id;
+    $scope.event = $scope.id == undefined ? "add" : "edit";
     $scope.cloud = {};
-    $scope.cloudTrafficList = [];
 
-    if ($scope.cloudId != undefined){
-        cloudService.get($scope.cloudId).then(function(data){
+    if($scope.event == "edit"){
+        cloudService.get($scope.id).then(function(data){
             $scope.cloud = data;
         });
-
-        cloudTrafficService.list($scope.cloudId).then(function (data) {
-            $scope.cloudTrafficList = data;
-        })
     };
 
     $scope.save = function(){
-        if ($scope.event == 'add'){
-            cloudService.create($scope.cloud).then(function (data) {
-                $location.path("cloudtraffic/add/"+ data.id +"/");
-            });
-        }
-        else {
-            cloudService.update($scope.cloud.id, $scope.cloud).then(function(data){
-               $location.path("cloud/"+$scope.cloud.id+"/");
-            });
-        };
-
+        cloudService.create($scope.cloud).then(function(data){
+            $location.path("cloud/" + data.id + "/");
+        });
     };
-
-    $scope.deleteTraffic = function($index){
-        if(confirm("Are you sure want to delete?")) {
-            cloudTrafficService.delete($scope.cloudTrafficList[$index].id).then(function (data) {
-                $scope.cloudTrafficList.splice($index, 1);
-            });
-        }
-    }
 });
+
+
+
+
+//nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
+//    $scope.cloudId = $routeParams.cloudId;
+//    $scope.event = $routeParams.event;
+//    $scope.cloud = {};
+//    $scope.cloudTrafficList = [];
+//
+//    if ($scope.cloudId != undefined){
+//        cloudService.get($scope.cloudId).then(function(data){
+//            $scope.cloud = data;
+//        });
+//
+//        cloudTrafficService.list($scope.cloudId).then(function (data) {
+//            $scope.cloudTrafficList = data;
+//        })
+//    };
+//
+//    $scope.save = function(){
+//        if ($scope.event == 'add'){
+//            cloudService.create($scope.cloud).then(function (data) {
+//                $location.path("cloudtraffic/add/"+ data.id +"/");
+//            });
+//        }
+//        else {
+//            cloudService.update($scope.cloud.id, $scope.cloud).then(function(data){
+//               $location.path("cloud/"+$scope.cloud.id+"/");
+//            });
+//        };
+//
+//    };
+//
+//    $scope.deleteTraffic = function($index){
+//        if(confirm("Are you sure want to delete?")) {
+//            cloudTrafficService.delete($scope.cloudTrafficList[$index].id).then(function (data) {
+//                $scope.cloudTrafficList.splice($index, 1);
+//            });
+//        }
+//    }
+//});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

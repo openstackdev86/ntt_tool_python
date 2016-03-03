@@ -9,12 +9,24 @@ class Cloud(models.Model):
     keystone_user = models.CharField(max_length=100)
     keystone_password = models.CharField(max_length=250)
     keystone_tenant_name = models.CharField(max_length=100)
-    # creator = models.ForeignKey(User) #ToDo: Facing some issues in serializer validation
+    creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "cloud_details"
+
+
+class CloudTenants(models.Model):
+    cloud = models.ForeignKey(Cloud, blank=True, null=True, related_name="cloud_tenants")
+    tenant_name = models.CharField(max_length=256)
+    ssh_gateway = models.CharField(max_length=256, blank=True, null=True)
+    creator = models.ForeignKey(User, blank=True, null=True)
+    created_on = models.DateTimeField(auto_now=True)
+    updated_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "cloud_tenants"
 
 
 class CloudTraffic(models.Model):
@@ -27,7 +39,7 @@ class CloudTraffic(models.Model):
     )
 
     name = models.CharField(max_length=256)
-    cloud = models.ForeignKey(Cloud)
+    cloud_tenant = models.ForeignKey(CloudTenants, related_name="cloud_tenant_traffic")
     allowed_delta_percentage = models.FloatField()
     test_result_path = models.CharField(max_length=250)
     number_of_workers = models.IntegerField()
@@ -37,7 +49,7 @@ class CloudTraffic(models.Model):
     iperf_duration = models.IntegerField()
     tenant_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='all')
     external_host = models.CharField(max_length=100, blank=True, null=True)
-    # creator = models.ForeignKey(User)
+    creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
 
@@ -45,13 +57,3 @@ class CloudTraffic(models.Model):
         db_table = "cloud_traffic"
 
 
-class CloudTrafficTenants(models.Model):
-    cloud_traffic = models.ForeignKey(CloudTraffic, related_name="cloud_traffic_tenants")
-    tenant_name = models.CharField(max_length=256)
-    ssh_gateway = models.CharField(max_length=256, blank=True, null=True)
-    creator = models.ForeignKey(User, related_name="cloud_traffic_tenants_creator")
-    created_on = models.DateTimeField(auto_now=True)
-    updated_on = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = "cloud_traffic_tenants"

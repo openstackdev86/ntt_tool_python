@@ -9,18 +9,18 @@ class CloudSerializer(serializers.ModelSerializer):
         exclude = ('updated_on',)
 
 
-class CloudTrafficListSerializer(serializers.ModelSerializer):
+class CloudTenantsSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CloudTraffic
+        model = CloudTenants
 
 
 class CloudTrafficRetrieveSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CloudTraffic
-        depth = 1
         exclude = ('created_on', 'updated_on')
+        depth = 1
 
 
 class CloudTrafficSerializer(serializers.ModelSerializer):
@@ -28,11 +28,6 @@ class CloudTrafficSerializer(serializers.ModelSerializer):
     class Meta:
         model = CloudTraffic
 
-
-class CloudTrafficTenantSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CloudTrafficTenants
 
 
 

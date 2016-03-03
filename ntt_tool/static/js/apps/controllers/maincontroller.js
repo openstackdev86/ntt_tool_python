@@ -1,6 +1,6 @@
 nttApp.controller('IndexCtrl', function($rootScope, $scope, $location){
     if($rootScope.isLoggedin){
-        $location.path('clouds');
+        $location.path('cloud');
     }
 });
 

@@ -9,7 +9,7 @@ nttApp.run(function($rootScope, $window, $location){
         $rootScope.isLoggedin = true;
         $window.localStorage['isLoggedin'] = true;
         $window.localStorage['token'] = data.token;
-        $location.path("clouds");
+        $location.path("cloud");
     });
 
     $rootScope.$on('event:auth-loginRequired', function (event) {

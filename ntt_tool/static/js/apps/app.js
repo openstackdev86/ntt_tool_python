@@ -29,24 +29,46 @@ nttApp.config(['$routeProvider', function($routeProvider){
         templateUrl: '/static/partials/dashboard.html',
     });
 
-    $routeProvider.when('/clouds/', {
-        controller: 'CloudsCtrl',
-        templateUrl: '/static/partials/cloud/clouds.html',
+    /**
+     * URL patterns for cloud
+     */
+    $routeProvider.when('/cloud/', {
+        controller: 'CloudListCtrl',
+        templateUrl: '/static/partials/cloud/cloud_list.html',
     });
 
-    $routeProvider.when('/cloud/:cloudId/', {
+    $routeProvider.when('/cloud/add/', {
+        controller: 'CloudCtrl',
+        templateUrl: '/static/partials/cloud/cloud_form.html',
+    });
+
+    $routeProvider.when('/cloud/edit/:id/', {
+        controller: 'CloudCtrl',
+        templateUrl: '/static/partials/cloud/cloud_form.html',
+    });
+
+    $routeProvider.when('/cloud/view/:id/', {
         controller: 'CloudCtrl',
         templateUrl: '/static/partials/cloud/cloud_view.html',
     });
 
-    $routeProvider.when('/clouds/:event/', {
-        controller: 'CloudCtrl',
-        templateUrl: '/static/partials/cloud/cloud.html',
+
+    /**
+     * URL patterns for cloud tenants and tenant discovery
+     */
+    $routeProvider.when('/cloud/tenant/discovery/:cloudId/', {
+        controller: 'CloudTenantDiscoveryCtrl',
+        templateUrl: '/static/partials/cloud/tenants/cloud_tenants_discovery.html',
     });
+
+
+
+
+
 
     $routeProvider.when('/clouds/:event/:cloudId/', {
         controller: 'CloudCtrl',
-        templateUrl: '/static/partials/cloud/cloud.html',
+        templateUrl: '/static/partials/cloud/cloud_form.html',
     });
 
     $routeProvider.when('/cloudtraffic/view/:id/', {

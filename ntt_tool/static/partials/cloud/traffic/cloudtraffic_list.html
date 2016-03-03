@@ -1,0 +1,34 @@
+<div class="page-header">
+                <a href="#/cloudtraffic/add/{$ cloud.id $}/" class="btn btn-primary pull-right">
+                   <i class="fa fa-plus-circle fa-fw"></i> Add Traffic
+                </a>
+                <h1><i class="fa fa-cog fa-fw"></i> Cloud Traffic</h1>
+            </div>
+
+            <table class="table table-bordered bg-white">
+                <tr>
+                    <th>Name</th>
+                    <th>Allowed Delta Percentage</th>
+                    <th>Test Result Path</th>
+                    <th>Number Of Workers</th>
+                    <th>Remote User</th>
+                    <th>Test Method</th>
+                    <th>IPERF Duration</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+                <tr ng-repeat="cloudTraffic in cloudTrafficList">
+                    <td><a href="#/cloudtraffic/view/{$ cloudTraffic.id $}/">{$ cloudTraffic.name $}</td>
+                    <td>{$ cloudTraffic.allowed_delta_percentage $}</td>
+                    <td>{$ cloudTraffic.test_result_path $}</td>
+                    <td>{$ cloudTraffic.number_of_workers $}</td>
+                    <td>{$ cloudTraffic.remote_user $}</td>
+                    <td>{$ cloudTraffic.test_method $}</td>
+                    <td>{$ cloudTraffic.iperf_duration $}</td>
+                    <td>{$ cloudTraffic.tenant_type $}</td>
+                    <td>
+                        <a href="#/cloudtraffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info"><i class="fa fa-edit fa-fw"></i></a>
+                        <a href class="text-danger" ng-click="deleteTraffic($index)"><i class="fa fa-trash-o fa-fw"></i></a></span>
+                    </td>
+                </tr>
+            </table>

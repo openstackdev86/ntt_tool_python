@@ -4,10 +4,9 @@ from views import *
 
 router = routers.SimpleRouter()
 router.register(r'cloud', CloudViewSet)
+router.register(r'cloudtenants', CloudTenantsViewSet)
 router.register(r'cloudtraffic', CloudTrafficViewSet)
-router.register(r'cloudtraffictenant', CloudTrafficTenantsViewSet)
 
-urlpatterns = [
-    # url('^cloudtraffics/(?P<cloud>.+)/$', CloudTrafficListView.as_view()),
-]
+
+urlpatterns = []
 urlpatterns += router.urls
