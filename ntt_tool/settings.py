@@ -141,6 +141,7 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ],
+    'EXCEPTION_HANDLER': 'ntt_tool.utils.custom_exception_handler.custom_exception_handler',
     'PAGINATE_BY': 10,
 }
 

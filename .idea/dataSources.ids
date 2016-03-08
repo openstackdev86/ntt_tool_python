@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="dataSourceStorage">
+  <data-source name="PostgreSQL - dcv14dl16ev288@ec2-54-83-18-87.compute-1.amazonaws.com" uuid="4a9166aa-1073-4ff2-bfba-4e3585cd9528">
+    <database-info product="" version="" jdbc-version="" driver-name="" driver-version=""/>
+  </data-source>
+</component>

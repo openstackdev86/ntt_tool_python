@@ -31,7 +31,7 @@ nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudSe
 
     $scope.save = function(){
         cloudService.create($scope.cloud).then(function(data){
-            $location.path("cloud/" + data.id + "/");
+            $location.path("cloud/view/" + data.id + "/");
         });
     };
 });

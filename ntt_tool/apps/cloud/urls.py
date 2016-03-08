@@ -4,7 +4,7 @@ from views import *
 
 router = routers.SimpleRouter()
 router.register(r'cloud', CloudViewSet)
-router.register(r'cloudtenants', CloudTenantsViewSet)
+router.register(r'tenant', TenantViewSet)
 router.register(r'cloudtraffic', CloudTrafficViewSet)
 
 

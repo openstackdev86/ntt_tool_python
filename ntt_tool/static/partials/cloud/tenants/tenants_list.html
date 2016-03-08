@@ -1,0 +1,23 @@
+<div class="page-header">
+    <a href="#/cloud/tenant/discovery/{$ cloud.id $}/" class="btn btn-primary btn-sm pull-right">
+        <i class="fa fa-plus-circle fa-fw"></i> Discover Tenants
+    </a>
+    <h1>Tenants</h1>
+</div>
+
+<table class="table table-bordered bg-white">
+    <tr>
+        <th>Tenant Name</th>
+        <th>Router Name</th>
+        <th>Network Name</th>
+        <th>Network CIDR</th>
+    </tr>
+    <tr ng-repeat="item in tenants">
+        <td>{$ item.name $}as</td>
+        <td>{$ item.router_name $}</td>
+        <td>{$ item.network_name $}</td>
+        <td>{$ item.network_cidr $}</td>
+    </tr>
+</table>
+
+

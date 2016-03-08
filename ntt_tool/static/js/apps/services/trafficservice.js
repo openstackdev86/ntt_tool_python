@@ -1,13 +1,4 @@
-nttApp.service('cloudTenantService', function (dataService) {
-   this.discover = function(cloudId){
-       return dataService.get('/api/cloudtenants/discover/' + cloudId + '/');
-   }
-});
-
-
-
-//
-//nttApp.service('cloudTrafficTenantService', function(dataService){
+nttApp.service('trafficService', function(dataService){
 //    this.list = function(trafficId){
 //        return dataService.get('/api/cloudtraffictenant/?traffic_id='+trafficId);
 //    };
@@ -23,4 +14,4 @@ nttApp.service('cloudTenantService', function (dataService) {
 //    this.delete = function(pk){
 //        return dataService.delete('/api/cloudtraffictenant/'+pk+'/');
 //    };
-//});
+});

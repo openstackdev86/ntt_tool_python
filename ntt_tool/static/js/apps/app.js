@@ -2,6 +2,8 @@ var nttApp = angular.module('nttApp', [
     'ngRoute',
     'ngCookies',
     'http-auth-interceptor',
+    'ui.bootstrap',
+    'checklist-model',
 ]);
 
 nttApp.config(['$httpProvider', '$interpolateProvider', function($httpProvider, $interpolateProvider){
@@ -57,12 +59,18 @@ nttApp.config(['$routeProvider', function($routeProvider){
      * URL patterns for cloud tenants and tenant discovery
      */
     $routeProvider.when('/cloud/tenant/discovery/:cloudId/', {
-        controller: 'CloudTenantDiscoveryCtrl',
-        templateUrl: '/static/partials/cloud/tenants/cloud_tenants_discovery.html',
+        controller: 'TenantDiscoveryCtrl',
+        templateUrl: '/static/partials/cloud/tenants/tenants_discovery.html',
     });
 
 
-
+    /**
+     * URL patterns for cloud traffic
+     */
+    $routeProvider.when('/cloud/traffic/add/:cloudId/', {
+        controller: 'TrafficCtrl',
+        templateUrl: '/static/partials/cloud/traffic/traffic_form.html'
+    });
 
 
 
@@ -78,12 +86,12 @@ nttApp.config(['$routeProvider', function($routeProvider){
 
     $routeProvider.when('/cloudtraffic/:event/:cloudId/', {
         controller: 'CloudTrafficCtrl',
-        templateUrl: '/static/partials/cloud/cloudtraffic_form.html',
+        templateUrl: '/static/partials/cloud/traffic_form.html',
     });
 
     $routeProvider.when('/cloudtraffic/:event/:cloudId/:trafficId/', {
         controller: 'CloudTrafficCtrl',
-        templateUrl: '/static/partials/cloud/cloudtraffic_form.html',
+        templateUrl: '/static/partials/cloud/traffic_form.html',
     });
 
     $routeProvider.when('/cloudtraffictest/', {

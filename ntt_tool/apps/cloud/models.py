@@ -17,10 +17,12 @@ class Cloud(models.Model):
         db_table = "cloud_details"
 
 
-class CloudTenants(models.Model):
+class Tenants(models.Model):
     cloud = models.ForeignKey(Cloud, blank=True, null=True, related_name="cloud_tenants")
     tenant_name = models.CharField(max_length=256)
-    ssh_gateway = models.CharField(max_length=256, blank=True, null=True)
+    router_name = models.CharField(max_length=256)
+    network_name = models.CharField(max_length=256)
+    network_CIDR = models.CharField(max_length=256)
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
@@ -39,7 +41,7 @@ class CloudTraffic(models.Model):
     )
 
     name = models.CharField(max_length=256)
-    cloud_tenant = models.ForeignKey(CloudTenants, related_name="cloud_tenant_traffic")
+    cloud_tenant = models.ForeignKey(Tenants, related_name="cloud_tenant_traffic")
     allowed_delta_percentage = models.FloatField()
     test_result_path = models.CharField(max_length=250)
     number_of_workers = models.IntegerField()

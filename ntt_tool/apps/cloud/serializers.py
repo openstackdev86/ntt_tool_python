@@ -9,10 +9,10 @@ class CloudSerializer(serializers.ModelSerializer):
         exclude = ('updated_on',)
 
 
-class CloudTenantsSerializer(serializers.ModelSerializer):
+class TenantSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CloudTenants
+        model = Tenants
 
 
 class CloudTrafficRetrieveSerializer(serializers.ModelSerializer):
