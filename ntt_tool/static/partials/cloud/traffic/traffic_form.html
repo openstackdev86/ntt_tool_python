@@ -17,15 +17,28 @@
                 <h1>{$ event | capitalize:true $} Traffic</h1>
             </div>
         </div>
-
-        <form name="traffic" ng-submit="save()">
-            <div class="col-md-12">
+    </div>
+    <form name="cloudTrafficForm" ng-submit="save()">
+        <div class="row">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>Name</label><span> * </span>
                     <input type="text" class="form-control" id="name" ng-model="cloudTraffic.name" required>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Remote Username</label>
+                    <input type="text" class="form-control" id="remote_user" ng-model="cloudTraffic.remote_user" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Remote Password</label>
+                    <input type="password" class="form-control" id="remote_pass" ng-model="cloudTraffic.remote_pass" required>
+                </div>
+            </div>
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>Allowed Delta Percentage</label>
                     <div class="input-group">
@@ -34,13 +47,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label>Number Of Workers</label>
-                    <input type="number" class="form-control" id="number_of_workers" ng-model="cloudTraffic.number_of_workers" required>
-                </div>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>IPERF Duration (In seconds)</label>
                     <div class="input-group">
@@ -49,25 +56,20 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Number Of Workers</label>
+                    <input type="number" class="form-control" id="number_of_workers" ng-model="cloudTraffic.number_of_workers" required>
+                </div>
+            </div>
+
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>Test Result Path</label>
                     <input type="text" class="form-control" id="test_result_path" ng-model="cloudTraffic.test_result_path" required>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Remote Username</label>
-                    <input type="text" class="form-control" id="remote_user" ng-model="cloudTraffic.remote_user" required>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Remote Password</label>
-                    <input type="password" class="form-control" id="remote_pass" ng-model="cloudTraffic.remote_pass" required>
-                </div>
-            </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>Test Method</label>
                     <br>
@@ -78,23 +80,94 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="form-group">
-                    <label>Type</label>
-                    <br>
-                    <div class="btn-group btn-group-justified">
-                        <label class="btn btn-default" ng-model="cloudTraffic.tenant_type" uib-btn-radio="'all'">All</label>
-                        <label class="btn btn-default" ng-model="cloudTraffic.tenant_type" uib-btn-radio="'intra-tenant'">Intra Tenant</label>
-                        <label class="btn btn-default" ng-model="cloudTraffic.tenant_type" uib-btn-radio="'inter-tenant'">Inter Tenant</label>
-                        <label class="btn btn-default" ng-model="cloudTraffic.tenant_type" uib-btn-radio="'south-north'">South to North</label>
-                        <label class="btn btn-default" ng-model="cloudTraffic.tenant_type" uib-btn-radio="'north-south'">North to South</label>
+                    <label>Tenant Type</label>
+                    <select class="form-control" ng-model="cloudTraffic.tenant_type">
+                        <option value="all">All</option>
+                        <option value="intra-tenant">Intra Tenant</option>
+                        <option value="inter-tenant">Inter Tenant</option>
+                        <option value="south-north">South to North</option>
+                        <option value="north-south">North to South</option>
+                     </select>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>SSH Gateway</label>
+                    <input type="text" class="form-control" id="ssh_gateway" ng-model="cloudTraffic.ssh_gateway" required>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>External Host</label>
+                    <input type="text" class="form-control" id="external_host" ng-model="cloudTraffic.external_host" required>
+                </div>
+            </div>
+        </div>
+        <!-- ./row -->
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">Available Tenants</div>
+                    <table class="table table-bordered bg-white" ng-show="cloudTraffic.available_tenants.length > 0">
+                        <tr>
+                            <th>Tenant Name</th>
+                            <th>Router Name</th>
+                            <th>Network Name</th>
+                            <th>Network CIDR</th>
+                            <th></th>
+                        </tr>
+                        <tr ng-repeat="item in cloudTraffic.available_tenants | orderBy:'name'">
+                            <td>{$ item.name $}as</td>
+                            <td>{$ item.router_name $}</td>
+                            <td>{$ item.network_name $}</td>
+                            <td>{$ item.network_cidr $}</td>
+                            <td><a href ng-click="selectTenant($index)"><i class="fa fa-arrow-right"></i></a></td>
+                        </tr>
+                    </table>
+                    <div class="panel-body" ng-hide="cloudTraffic.available_tenants.length > 0">
+                        <div>No tenants available</div>
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">Selected Tenants</div>
+                    <table class="table table-bordered bg-white" ng-show="cloudTraffic.selected_tenants.length > 0">
+                        <tr>
+                            <th></th>
+                            <th>Tenant Name</th>
+                            <th>Router Name</th>
+                            <th>Network Name</th>
+                            <th>Network CIDR</th>
+                        </tr>
+                        <tr ng-repeat="item in cloudTraffic.selected_tenants | orderBy:'name'">
+                            <td><a href ng-click="unSelectTenant($index)"><i class="fa fa-arrow-left"></i></a></td>
+                            <td>{$ item.name $}</td>
+                            <td>{$ item.router_name $}</td>
+                            <td>{$ item.network_name $}</td>
+                            <td>{$ item.network_cidr $}</td>
+                        </tr>
+                    </table>
+                    <div class="panel-body" ng-hide="cloudTraffic.selected_tenants.length > 0">
+                        <div>No tenants selected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ./row -->
+
+        <div class="row">
             <div class="col-md-12">
-                <a href="#/cloud/view/{$ cloud.id $}/" class="btn btn-default">Cancel</a>
+                <a href="#/cloud/view/{$ cloudId $}/" class="btn btn-default">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>
-        </form>
-    </div>
+        </div>
+        <!-- ./row -->
+    </form>
 </div>

@@ -31,7 +31,7 @@ class Tenants(models.Model):
         db_table = "cloud_tenants"
 
 
-class CloudTraffic(models.Model):
+class Traffic(models.Model):
     TYPE_CHOICES = (
         ('all', 'All'),
         ('intra-tenant', 'Intra Tenant'),
@@ -40,8 +40,8 @@ class CloudTraffic(models.Model):
         ('north-south', 'North to South'),
     )
 
+    cloud = models.ForeignKey(Cloud, blank=True, null=True, related_name="cloud_traffic")
     name = models.CharField(max_length=256)
-    cloud_tenant = models.ForeignKey(Tenants, related_name="cloud_tenant_traffic")
     allowed_delta_percentage = models.FloatField()
     test_result_path = models.CharField(max_length=250)
     number_of_workers = models.IntegerField()
@@ -50,7 +50,9 @@ class CloudTraffic(models.Model):
     test_method = models.CharField(max_length=100)
     iperf_duration = models.IntegerField()
     tenant_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='all')
+    tenants = models.CharField(max_length=250)
     external_host = models.CharField(max_length=100, blank=True, null=True)
+    ssh_gateway = models.CharField(max_length=100, blank=True, null=True)
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)

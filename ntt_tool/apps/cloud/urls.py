@@ -5,7 +5,7 @@ from views import *
 router = routers.SimpleRouter()
 router.register(r'cloud', CloudViewSet)
 router.register(r'tenant', TenantViewSet)
-router.register(r'cloudtraffic', CloudTrafficViewSet)
+router.register(r'traffic', TrafficViewSet)
 
 
 urlpatterns = []

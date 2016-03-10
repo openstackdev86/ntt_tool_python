@@ -4,31 +4,31 @@
     </a>
     <h1>Traffic</h1>
 </div>
-
 <table class="table table-bordered bg-white">
     <tr>
         <th>Name</th>
         <th>Allowed Delta Percentage</th>
         <th>Test Result Path</th>
-        <th>Number Of Workers</th>
+        <th># Workers</th>
         <th>Remote User</th>
         <th>Test Method</th>
         <th>IPERF Duration</th>
         <th>Type</th>
         <th>Actions</th>
     </tr>
-    <tr ng-repeat="cloudTraffic in cloudTrafficList">
+    <tr ng-repeat="cloudTraffic in trafficList">
         <td><a href="#/cloud/traffic/view/{$ cloudTraffic.id $}/">{$ cloudTraffic.name $}</td>
-        <td>{$ cloudTraffic.allowed_delta_percentage $}</td>
+        <td>{$ cloudTraffic.allowed_delta_percentage $} % </td>
         <td>{$ cloudTraffic.test_result_path $}</td>
         <td>{$ cloudTraffic.number_of_workers $}</td>
         <td>{$ cloudTraffic.remote_user $}</td>
         <td>{$ cloudTraffic.test_method $}</td>
-        <td>{$ cloudTraffic.iperf_duration $}</td>
+        <td>{$ cloudTraffic.iperf_duration $} sec</td>
         <td>{$ cloudTraffic.tenant_type $}</td>
         <td>
-            <a href="#/cloud/traffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info"><i class="fa fa-edit fa-fw"></i></a>
-            <a href class="text-danger" ng-click="deleteTraffic($index)"><i class="fa fa-trash-o fa-fw"></i></a></span>
+            <a href="#/cloud/traffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info" uib-tooltip="Edit Traffic"><i class="fa fa-edit fa-fw"></i></a>
+            <a href class="text-danger" ng-click="delete($index)" uib-tooltip="Delete Traffic"><i class="fa fa-trash-o fa-fw"></i></a></span>
+            <a href="#/cloud/traffic/test/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-success" uib-tooltip="Start Traffic Test"><i class="fa fa-play fa-fw"></i></a></span>
         </td>
     </tr>
 </table>

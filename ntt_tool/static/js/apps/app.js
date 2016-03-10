@@ -72,32 +72,18 @@ nttApp.config(['$routeProvider', function($routeProvider){
         templateUrl: '/static/partials/cloud/traffic/traffic_form.html'
     });
 
-
-
-    $routeProvider.when('/clouds/:event/:cloudId/', {
-        controller: 'CloudCtrl',
-        templateUrl: '/static/partials/cloud/cloud_form.html',
+    $routeProvider.when('/cloud/traffic/edit/:cloudId/:id/', {
+        controller: 'TrafficCtrl',
+        templateUrl: '/static/partials/cloud/traffic/traffic_form.html'
     });
 
-    $routeProvider.when('/cloudtraffic/view/:id/', {
-        controller: 'CloudTrafficViewCtrl',
-        templateUrl: '/static/partials/cloud/cloudtraffic_view.html',
+    $routeProvider.when('/cloud/traffic/test/:cloudId/:id/', {
+        controller: 'TrafficTestCtrl',
+        templateUrl: '/static/partials/cloud/traffic/traffic_test.html'
     });
 
-    $routeProvider.when('/cloudtraffic/:event/:cloudId/', {
-        controller: 'CloudTrafficCtrl',
-        templateUrl: '/static/partials/cloud/traffic_form.html',
-    });
 
-    $routeProvider.when('/cloudtraffic/:event/:cloudId/:trafficId/', {
-        controller: 'CloudTrafficCtrl',
-        templateUrl: '/static/partials/cloud/traffic_form.html',
-    });
 
-    $routeProvider.when('/cloudtraffictest/', {
-        controller: 'CloudTrafficTestCtrl',
-        templateUrl: '/static/partials/cloud/cloudtraffic_test.html'
-    });
 }]);
 
 
