@@ -17,18 +17,45 @@ class Cloud(models.Model):
         db_table = "cloud_details"
 
 
-class Tenants(models.Model):
-    cloud = models.ForeignKey(Cloud, blank=True, null=True, related_name="cloud_tenants")
+class Tenant(models.Model):
+    cloud = models.ForeignKey(Cloud, blank=True, null=True, related_name="tenants")
+    tenant_id = models.CharField(max_length=100)
     tenant_name = models.CharField(max_length=256)
-    router_name = models.CharField(max_length=256)
-    network_name = models.CharField(max_length=256)
-    network_CIDR = models.CharField(max_length=256)
+    description = models.CharField(max_length=256)
+    enabled = models.BooleanField()
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "cloud_tenants"
+
+
+class Network(models.Model):
+    tenant = models.ForeignKey(Tenant, related_name="networks")
+    network_name = models.CharField(max_length=255)
+    network_cidr = models.CharField(max_length=255)
+    subnet = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=25)
+    creator = models.ForeignKey(User, blank=True, null=True)
+    created_on = models.DateTimeField(auto_now=True)
+    updated_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "cloud_tenant_networks"
+
+
+class Router(models.Model):
+    tenant = models.ForeignKey(Tenant, related_name="routers")
+    router_id = models.CharField(max_length=255)
+    router_name = models.CharField(max_length=255)
+    status = models.CharField(max_length=25)
+    creator = models.ForeignKey(User, blank=True, null=True)
+    created_on = models.DateTimeField(auto_now=True)
+    updated_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "cloud_tenant_routers"
 
 
 class Traffic(models.Model):
@@ -50,7 +77,7 @@ class Traffic(models.Model):
     test_method = models.CharField(max_length=100)
     iperf_duration = models.IntegerField()
     tenant_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='all')
-    tenants = models.CharField(max_length=250)
+    tenants = models.ManyToManyField(Tenant, blank=True, null=True)
     external_host = models.CharField(max_length=100, blank=True, null=True)
     ssh_gateway = models.CharField(max_length=100, blank=True, null=True)
     creator = models.ForeignKey(User, blank=True, null=True)
@@ -61,3 +88,6 @@ class Traffic(models.Model):
         db_table = "cloud_traffic"
 
 
+# class TrafficTenant(models.Model):
+#     traffic = models.ForeignKey(Traffic)
+#     tenant = models.ForeignKey(Tenant)

@@ -113,23 +113,19 @@
             <div class="col-md-6">
                 <div class="panel panel-info">
                     <div class="panel-heading">Available Tenants</div>
-                    <table class="table table-bordered bg-white" ng-show="cloudTraffic.available_tenants.length > 0">
+                    <table class="table table-bordered bg-white" ng-show="tenants.length > 0">
                         <tr>
                             <th>Tenant Name</th>
-                            <th>Router Name</th>
-                            <th>Network Name</th>
-                            <th>Network CIDR</th>
-                            <th></th>
+                            <th class="col-md-1">Enabled</th>
+                            <th class="col-md-1"></th>
                         </tr>
-                        <tr ng-repeat="item in cloudTraffic.available_tenants | orderBy:'name'">
-                            <td>{$ item.name $}as</td>
-                            <td>{$ item.router_name $}</td>
-                            <td>{$ item.network_name $}</td>
-                            <td>{$ item.network_cidr $}</td>
+                        <tr ng-repeat="tenant in tenants | orderBy:'name'">
+                            <td>{$ tenant.tenant_name $}</td>
+                            <td>{$ tenant.enabled $}</td>
                             <td><a href ng-click="selectTenant($index)"><i class="fa fa-arrow-right"></i></a></td>
                         </tr>
                     </table>
-                    <div class="panel-body" ng-hide="cloudTraffic.available_tenants.length > 0">
+                    <div class="panel-body" ng-hide="tenants.length > 0">
                         <div>No tenants available</div>
                     </div>
                 </div>
@@ -138,23 +134,19 @@
             <div class="col-md-6">
                 <div class="panel panel-info">
                     <div class="panel-heading">Selected Tenants</div>
-                    <table class="table table-bordered bg-white" ng-show="cloudTraffic.selected_tenants.length > 0">
+                    <table class="table table-bordered bg-white" ng-show="cloudTraffic.tenants.length > 0">
                         <tr>
-                            <th></th>
+                            <th class="col-md-1"></th>
                             <th>Tenant Name</th>
-                            <th>Router Name</th>
-                            <th>Network Name</th>
-                            <th>Network CIDR</th>
+                            <th class="col-md-1">Enabled</th>
                         </tr>
-                        <tr ng-repeat="item in cloudTraffic.selected_tenants | orderBy:'name'">
+                        <tr ng-repeat="tenant in cloudTraffic.tenants | orderBy:'name'">
                             <td><a href ng-click="unSelectTenant($index)"><i class="fa fa-arrow-left"></i></a></td>
-                            <td>{$ item.name $}</td>
-                            <td>{$ item.router_name $}</td>
-                            <td>{$ item.network_name $}</td>
-                            <td>{$ item.network_cidr $}</td>
+                            <td>{$ tenant.tenant_name $}</td>
+                            <td>{$ tenant.enabled $}</td>
                         </tr>
                     </table>
-                    <div class="panel-body" ng-hide="cloudTraffic.selected_tenants.length > 0">
+                    <div class="panel-body" ng-hide="cloudTraffic.tenants.length > 0">
                         <div>No tenants selected</div>
                     </div>
                 </div>

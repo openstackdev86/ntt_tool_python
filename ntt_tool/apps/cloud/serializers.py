@@ -9,11 +9,33 @@ class CloudSerializer(serializers.ModelSerializer):
         exclude = ('creator', 'updated_on')
 
 
-class TenantSerializer(serializers.ModelSerializer):
+class NetworkSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Tenants
-        exclude = ('remote_pass', 'external_host', 'tenants', 'creator', 'created_on', 'updated_on',)
+        model = Network
+        exclude = ('creator', 'created_on', 'updated_on',)
+
+
+class RouterSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Router
+        exclude = ('creator', 'created_on', 'updated_on',)
+
+
+class TenantSerializer(serializers.ModelSerializer):
+    networks = NetworkSerializer(many=True, read_only=True)
+    routers = RouterSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Tenant
+        exclude = ('creator', 'created_on', 'updated_on',)
+
+
+# class TrafficTenantSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = TrafficTenants
 
 
 class TrafficListSerializer(serializers.ModelSerializer):
@@ -24,33 +46,19 @@ class TrafficListSerializer(serializers.ModelSerializer):
 
 
 class TrafficRetrieveSerializer(serializers.ModelSerializer):
-    available_tenants = serializers.SerializerMethodField()
-    selected_tenants = serializers.SerializerMethodField()
-
-    def get_available_tenants(self, obj):
-        available = [
-            {"id": 1, "name": "tenant-test-101", "router_name": "tenant-test-101-router", "network_name": "tenant-test-101-net-1", "network_cidr": "1.1.1.0/24"},
-            {"id": 2, "name": "tenant-test-102", "router_name": "tenant-test-102-router", "network_name": "tenant-test-101-net-1", "network_cidr": "1.1.1.0/24"},
-            {"id": 3, "name": "tenant-test-103", "router_name": "tenant-test-103-router", "network_name": "tenant-test-101-net-1", "network_cidr": "2.2.2.0/24"},
-        ]
-        return [x for x in available if str(x.get("id")) not in obj.tenants.split(",")]
-
-    def get_selected_tenants(self, obj):
-        selected = [
-            {"id": 1, "name": "tenant-test-101", "router_name": "tenant-test-101-router", "network_name": "tenant-test-101-net-1", "network_cidr": "1.1.1.0/24"},
-            {"id": 2, "name": "tenant-test-102", "router_name": "tenant-test-102-router", "network_name": "tenant-test-101-net-1", "network_cidr": "1.1.1.0/24"},
-            {"id": 3, "name": "tenant-test-103", "router_name": "tenant-test-103-router", "network_name": "tenant-test-101-net-1", "network_cidr": "2.2.2.0/24"},
-        ]
-        return [x for x in selected if str(x.get("id")) in obj.tenants.split(",")]
+    tenants = TenantSerializer(many=True)
 
     class Meta:
         model = Traffic
-        exclude = ('creator', 'created_on', 'updated_on',)
+        fields = ('id', 'cloud', 'name', 'allowed_delta_percentage', 'test_result_path',
+                  'number_of_workers', 'remote_user', 'remote_pass', 'test_method',
+                  'iperf_duration', 'tenant_type', 'tenants', 'external_host', 'ssh_gateway',)
 
 
 class TrafficSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Traffic
-        exclude = ('creator', 'created_on', 'updated_on',)
-
+        fields = ('id', 'cloud', 'name', 'allowed_delta_percentage', 'test_result_path',
+                  'number_of_workers', 'remote_user', 'remote_pass', 'test_method',
+                  'iperf_duration', 'tenant_type', 'tenants', 'external_host', 'ssh_gateway',)

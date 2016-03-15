@@ -106,7 +106,9 @@ td > a{
     background: #fff;
 }
 
-
+.border {
+    border: 1px solid #ddd;
+}
 
 /* widgets */
 .card {
@@ -136,4 +138,10 @@ td > a{
 .breadcrumb {
     padding: 0;
     margin: 0;
+}
+
+.list-group-item-heading-custom {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
 }

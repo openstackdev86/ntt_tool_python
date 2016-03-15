@@ -14,7 +14,6 @@ nttApp.service('dataService', ['$http', '$q', function ($http, $q) {
     };
 
     this.post = function (url, params) {
-        console.log($.param(params))
         var deferred = $q.defer();
         var request = $http({
             method: "post",
