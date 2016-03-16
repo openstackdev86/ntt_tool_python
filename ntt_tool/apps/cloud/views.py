@@ -24,6 +24,18 @@ class TenantViewSet(viewsets.ModelViewSet):
     serializer_class = TenantSerializer
     authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+    action_serializers = {
+        'retrieve': TenantSerializer,
+        'list': TenantListSerializer,
+        'create': TenantSerializer,
+        'update': TenantSerializer,
+    }
+
+    def get_serializer_class(self):
+        if hasattr(self, 'action_serializers'):
+            if self.action in self.action_serializers:
+                return self.action_serializers[self.action]
+        return super(TrafficViewSet, self).get_serializer_class()
 
     def list(self, request, *args, **kwargs):
         cloud_id = self.request.GET.get("cloud_id")
@@ -96,32 +108,11 @@ class TrafficViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def parse_tenants(self):
-        return ",".join([str(x) for x in self.request.data.get("tenants", [])])
-
-    def create(self, request, *args, **kwargs):
-        import pdb
-        pdb.set_trace()
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
     def perform_create(self, serializer):
-
-        import pdb
-        pdb.set_trace()
-
         serializer.save(
-            # tenants=self.parse_tenants(),
+            tenants=self.request.data.getlist("tenants[]"),
             creator=self.request.user,
             cloud_id=self.request.data.get("cloud_id")
-        )
-
-    def perform_update(self, serializer):
-        serializer.save(
-            tenants=self.parse_tenants(),
         )
 
     @detail_route(methods=["get"], url_path="test")

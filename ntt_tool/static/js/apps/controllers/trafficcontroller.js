@@ -22,7 +22,7 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
         "cloud_id": $scope.cloudId,
         "tenant_type": "all",
         "test_method": "icmp",
-        "tenants": []
+        "tenants": [],
     };
 
     if ($scope.event == "edit"){
@@ -35,7 +35,22 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
     $scope.tenants = [];
     $scope.getTenants = function(){
         tenantService.list($scope.cloudId).then(function(response){
-           $scope.tenants = response;
+            if ($scope.event == 'add'){
+                $scope.tenants = response;
+            }
+            else {
+                angular.forEach(response, function(tenant, i){
+                    var isSelected = false;
+                    angular.forEach($scope.cloudTraffic.tenants, function(selectedTenant, j){
+                        if (tenant.tenant_name == selectedTenant.tenant_name){
+                            isSelected = true;
+                        }
+                    });
+                    if (!isSelected){
+                        $scope.tenants.push(tenant);
+                    }
+                });
+            }
         });
     };
     if($scope.event == 'add'){
@@ -59,16 +74,14 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
         angular.forEach($scope.cloudTraffic.tenants, function(item, index){
             selectedList.push(item.id);
         });
-        return JSON.stringify(selectedList);
+        console.log(selectedList)
+        return selectedList;
     };
 
     $scope.save = function(){
-
-        var cloudTraffic = angular.copy($scope.cloudTraffic);
-        cloudTraffic["tenants"] = $scope.getSelectedTenants();
-        console.log(cloudTraffic)
         if($scope.event == "add") {
-            trafficService.create(cloudTraffic).then(function (response) {
+            $scope.cloudTraffic["tenants"] = $scope.getSelectedTenants()
+            trafficService.create($scope.cloudTraffic).then(function (response) {
                 $location.path("cloud/view/" + $scope.cloudId + "/");
             });
         }
