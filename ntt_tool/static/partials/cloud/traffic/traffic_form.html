@@ -149,7 +149,7 @@
                             <td>{$ tenant.tenant_name $}</td>
                             <td>
                                 <span class="label" ng-class="{'label-success': tenant.enabled, 'label-danger': !tenant.enabled}">
-                                    {$ item.enabled === true ? "Enabled" : "Disabled" $}
+                                    {$ tenant.enabled === true ? "Enabled" : "Disabled" $}
                                 </span>
                             </td>
                         </tr>
