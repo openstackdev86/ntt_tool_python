@@ -127,8 +127,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "ntt_tool/static")
+    os.path.join(BASE_DIR, os.path.join("ntt_tool", "static"))
 ]
+MEDIA_ROOT = os.path.join(BASE_DIR, os.path.join("ntt_tool", "media"))
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

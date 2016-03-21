@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from models import *
 from serializers import *
+from scripts.novaclientutils import NovaClientUtils
 from scripts.tenantnetworkdiscovery import TenantDiscovery, NetworkRouterDiscovery
 
 
@@ -114,6 +115,33 @@ class TrafficViewSet(viewsets.ModelViewSet):
             creator=self.request.user,
             cloud_id=self.request.data.get("cloud_id")
         )
+
+    @detail_route(methods=["get"], url_path="vm/launch")
+    def launch_vm(self, request, pk=None):
+        traffic = None
+        try:
+            traffic = Traffic.objects.get(pk=pk)
+        except Cloud.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        credentials = {
+            "username": traffic.cloud.keystone_user,
+            "api_key": traffic.cloud.keystone_password,
+            "auth_url": traffic.cloud.keystone_auth_url,
+            "project_id": traffic.cloud.keystone_tenant_name
+        }
+        nova = NovaClientUtils(**credentials)
+
+        instances = []
+        for tenant in traffic.tenants.all():
+            for count, network in enumerate(tenant.networks.all()):
+                if not network.shared:
+                    vm_name = "-".join([network.network_name, "vm", str(count)])
+                    instance = nova.launch_vm(tenant.tenant_id,
+                                               network.network_id,
+                                               vm_name)
+                    instances.append(instance)
+        return Response(instances)
 
     @detail_route(methods=["get"], url_path="test")
     def test(self, request, pk=None):

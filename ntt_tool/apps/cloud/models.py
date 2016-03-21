@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Cloud(models.Model):
@@ -23,6 +24,7 @@ class Tenant(models.Model):
     tenant_name = models.CharField(max_length=256)
     description = models.CharField(max_length=256, blank=True, null=True)
     enabled = models.BooleanField(default=False)
+    is_dirty = models.BooleanField(default=False)
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
@@ -33,10 +35,13 @@ class Tenant(models.Model):
 
 class Network(models.Model):
     tenant = models.ForeignKey(Tenant, related_name="networks")
+    network_id = models.CharField(max_length=255)
     network_name = models.CharField(max_length=255)
     network_cidr = models.CharField(max_length=255)
+    shared = models.BooleanField(default=False)
     subnet = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=25)
+    is_dirty = models.BooleanField(default=False)
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
@@ -50,6 +55,7 @@ class Router(models.Model):
     router_id = models.CharField(max_length=255)
     router_name = models.CharField(max_length=255)
     status = models.CharField(max_length=25)
+    is_dirty = models.BooleanField(default=False)
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)

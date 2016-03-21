@@ -27,57 +27,34 @@ nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudSe
         cloudService.get($scope.id).then(function(data){
             $scope.cloud = data;
         });
-    };
+    }
 
     $scope.save = function(){
-        cloudService.create($scope.cloud).then(function(data){
-            $location.path("cloud/view/" + data.id + "/");
-        });
+        if ($scope.event == "add") {
+            cloudService.create($scope.cloud).then(function (response) {
+                $location.path("cloud/view/" + response.id + "/");
+            });
+        }
+        else {
+            cloudService.update($scope.cloud.id, $scope.cloud).then(function(response){
+                $location.path("cloud/view/" + response.id + "/");
+            });
+        }
     };
+
+    $scope.saveAndDiscover = function(){
+        if ($scope.event == "add") {
+            cloudService.create($scope.cloud).then(function(response){
+                $location.path("/cloud/tenant/discovery/" + response.id + "/");
+            });
+        }
+        else {
+            cloudService.update($scope.cloud.id, $scope.cloud).then(function(response){
+                $location.path("/cloud/tenant/discovery/" + response.id + "/");
+            });
+        }
+    }
 });
-
-
-
-
-//nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudService, cloudTrafficService){
-//    $scope.cloudId = $routeParams.cloudId;
-//    $scope.event = $routeParams.event;
-//    $scope.cloud = {};
-//    $scope.cloudTrafficList = [];
-//
-//    if ($scope.cloudId != undefined){
-//        cloudService.get($scope.cloudId).then(function(data){
-//            $scope.cloud = data;
-//        });
-//
-//        cloudTrafficService.list($scope.cloudId).then(function (data) {
-//            $scope.cloudTrafficList = data;
-//        })
-//    };
-//
-//    $scope.save = function(){
-//        if ($scope.event == 'add'){
-//            cloudService.create($scope.cloud).then(function (data) {
-//                $location.path("cloudtraffic/add/"+ data.id +"/");
-//            });
-//        }
-//        else {
-//            cloudService.update($scope.cloud.id, $scope.cloud).then(function(data){
-//               $location.path("cloud/"+$scope.cloud.id+"/");
-//            });
-//        };
-//
-//    };
-//
-//    $scope.deleteTraffic = function($index){
-//        if(confirm("Are you sure want to delete?")) {
-//            cloudTrafficService.delete($scope.cloudTrafficList[$index].id).then(function (data) {
-//                $scope.cloudTrafficList.splice($index, 1);
-//            });
-//        }
-//    }
-//});
-
 
 
 

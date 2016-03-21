@@ -19,9 +19,13 @@ nttApp.service('trafficService', function(dataService){
         return dataService.delete('/api/traffic/'+pk+'/');
     };
 
+    this.launchVM = function(pk){
+        return dataService.get('/api/traffic/' + pk + '/vm/launch/');
+    };
+
     this.test = function(pk){
         return dataService.get('/api/traffic/' + pk + '/test/');
-    }
+    };
 });
 
 

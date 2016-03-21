@@ -98,8 +98,12 @@ nttApp.controller('TrafficTestCtrl', function ($scope, $routeParams, trafficServ
     $scope.cloudId = $routeParams.cloudId;
     $scope.showLoading = true;
     $scope.testResult = {};
+    $scope.vmLaunchStatus = [];
 
-    trafficService.test($scope.id).then(function(response){
-        console.log(response);
+    $scope.status = "Launching VM(s) on selected networks";
+    trafficService.launchVM($scope.id).then(function(response){
+        $scope.status = "Successfully launched VM(s) on selected networks"
+        $scope.showLoading = false;
+        $scope.vmLaunchStatus = response;
     });
 });

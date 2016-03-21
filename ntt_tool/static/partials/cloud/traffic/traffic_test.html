@@ -16,9 +16,33 @@
             <div class="page-header">
                 <h1>Traffic Test</h1>
             </div>
-            <div class="progress" ng-show="showLoading">
-                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div ng-show="showLoading">
+                <h4>{$ status $}</h4>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="panel panel-success" ng-show="vmLaunchStatus.length > 0">
+                <div class="panel-heading">{$ status $}</div>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>VM Name</th>
+                        <th>VM Status</th>
+                    </tr>
+                    <tr ng-repeat="instance in vmLaunchStatus">
+                        <td>{$ instance.instance_name $}</td>
+                        <td>{$ instance.instance_status $}</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
+
+
 </div>

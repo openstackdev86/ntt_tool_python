@@ -18,12 +18,12 @@
     </tr>
     <tr ng-repeat="cloudTraffic in trafficList">
         <td><a href="#/cloud/traffic/view/{$ cloudTraffic.id $}/">{$ cloudTraffic.name $}</td>
-        <td>{$ cloudTraffic.allowed_delta_percentage $} % </td>
+        <td>{$ cloudTraffic.allowed_delta_percentage $}% </td>
         <td>{$ cloudTraffic.test_result_path $}</td>
         <td>{$ cloudTraffic.number_of_workers $}</td>
         <td>{$ cloudTraffic.remote_user $}</td>
         <td>{$ cloudTraffic.test_method $}</td>
-        <td>{$ cloudTraffic.iperf_duration $} sec</td>
+        <td>{$ cloudTraffic.iperf_duration $}sec</td>
         <td>{$ cloudTraffic.tenant_type $}</td>
         <td>
             <a href="#/cloud/traffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info" uib-tooltip="Edit Traffic"><i class="fa fa-edit fa-fw"></i></a>
