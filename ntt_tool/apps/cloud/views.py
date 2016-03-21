@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from models import *
 from serializers import *
-from scripts.novaclientutils import NovaClientUtils
-from scripts.tenantnetworkdiscovery import TenantDiscovery, NetworkRouterDiscovery
+from openstackscripts.novaclientutils import NovaClientUtils
+from openstackscripts.tenantnetworkdiscovery import TenantDiscovery, NetworkRouterDiscovery
 
 
 class CloudViewSet(viewsets.ModelViewSet):
