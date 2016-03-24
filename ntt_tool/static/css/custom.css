@@ -110,6 +110,11 @@ td > a{
     border: 1px solid #ddd;
 }
 
+.modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
 /* widgets */
 .card {
     border-radius: 2px;

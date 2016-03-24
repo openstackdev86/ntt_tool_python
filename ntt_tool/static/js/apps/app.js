@@ -81,9 +81,14 @@ nttApp.config(['$routeProvider', function($routeProvider){
         controller: 'TrafficTestCtrl',
         templateUrl: '/static/partials/cloud/traffic/traffic_test.html'
     });
-
-
-
 }]);
+
+
+
+
+
+
+
+
 
 

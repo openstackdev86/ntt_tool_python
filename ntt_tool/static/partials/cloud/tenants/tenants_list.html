@@ -1,10 +1,16 @@
 <div class="page-header">
-    <a href="#/cloud/tenant/discovery/{$ cloud.id $}/" class="btn btn-primary btn-sm pull-right">
-        <i class="fa fa-plus-circle fa-fw"></i> Discover Tenants
-    </a>
+    <button type="button" ng-click="discover()"
+            class="btn btn-primary btn-sm pull-right"
+            data-toggle="modal"
+            data-backdrop="static"
+            data-keyboard="false"
+            data-target="#myModal">
+        <i class="fa fa-refresh fa-fw"></i> {$ tenants.length <= 0 ? "Discover" : "Re-Discover" $} Tenants
+    </button>
     <h1>Tenants</h1>
 </div>
-<table class="table table-bordered bg-white">
+
+<table class="table table-bordered bg-white" ng-hide="tenants.length <= 0">
     <tr>
         <th>Tenant Name</th>
         <th class="col-md-1">Status</th>
@@ -19,4 +25,7 @@
     </tr>
 </table>
 
+<p ng-show="tenants.length <= 0">No tenants discovered. Please click on discover tenants</p>
 
+
+<ng-include src="'/static/partials/cloud/tenants/tenants_discovery.html'"></ng-include>

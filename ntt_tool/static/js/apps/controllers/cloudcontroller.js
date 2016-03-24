@@ -42,18 +42,18 @@ nttApp.controller('CloudCtrl', function($scope, $routeParams, $location, cloudSe
         }
     };
 
-    $scope.saveAndDiscover = function(){
-        if ($scope.event == "add") {
-            cloudService.create($scope.cloud).then(function(response){
-                $location.path("/cloud/tenant/discovery/" + response.id + "/");
-            });
-        }
-        else {
-            cloudService.update($scope.cloud.id, $scope.cloud).then(function(response){
-                $location.path("/cloud/tenant/discovery/" + response.id + "/");
-            });
-        }
-    }
+    //$scope.saveAndDiscover = function(){
+    //    if ($scope.event == "add") {
+    //        cloudService.create($scope.cloud).then(function(response){
+    //            $location.path("cloud/view/" + response.id + "/").search('discover', 'true');
+    //        });
+    //    }
+    //    else {
+    //        cloudService.update($scope.cloud.id, $scope.cloud).then(function(response){
+    //            $location.path("cloud/view/" + response.id + "/").search('discover', 'true');
+    //        });
+    //    }
+    //}
 });
 
 
