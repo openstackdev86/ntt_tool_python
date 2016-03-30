@@ -1,9 +1,13 @@
+import logging
 from django.db import transaction
 from django.utils import timezone
 from keystoneclientutils import KeystoneClientUtils
 from neutronclientutils import NeutronClientUtils
-from ntt_tool.apps.cloud.models import Tenant, Network, Router
+from ntt_tool.apps.cloud.models import Tenant, Network, Subnet
 from ntt_tool.apps.cloud.serializers import TenantSerializer
+
+
+logger = logging.getLogger(__name__)
 
 
 class TenantDiscovery(KeystoneClientUtils):
@@ -13,20 +17,22 @@ class TenantDiscovery(KeystoneClientUtils):
         return keystone.tenants.list()
 
 
-class NetworkRouterDiscovery(NeutronClientUtils):
+class NetworkSubnetDiscovery(NeutronClientUtils):
 
-    def get_networks_and_routers(self, user, cloud_id, tenants):
+    def get_networks_and_subnets(self, user, cloud_id, tenants):
         neutron = self.get_client_instance()
 
         discovery_result = []
         with transaction.atomic():
             discovery_datetime = timezone.now()
 
-            Tenant.objects.filter(cloud_id=cloud_id).update(is_dirty=False)
+            Tenant.objects.filter(cloud_id=cloud_id)\
+                .update(is_dirty=False)
+
             for tenant in tenants:
                 tenant_obj = None
                 try:
-                    tenant_obj = Tenant.objects.filter(tenant_name=tenant.name).get()
+                    tenant_obj = Tenant.objects.filter(tenant_id=tenant.id).get()
                 except Tenant.DoesNotExist:
                     tenant_obj = Tenant()
                 tenant_obj.cloud_id = cloud_id
@@ -42,6 +48,7 @@ class NetworkRouterDiscovery(NeutronClientUtils):
                 # Setting all records belongs to tenant as not dirty/updated
                 Network.objects.filter(tenant__tenant_id=tenant.id)\
                     .update(is_dirty=False)
+
                 networks = neutron.list_networks(tenant_id=tenant.id)
                 for network in networks.get("networks", []):
                     network_obj = None
@@ -57,51 +64,47 @@ class NetworkRouterDiscovery(NeutronClientUtils):
                     network_obj.network_id = network.get("id")
                     network_obj.network_name = network.get("name")
                     network_obj.shared = network.get("shared")
-                    # ToDo: We are assuming that each network is having only one subnet
-                    # ToDo: Need to handle the scenario if we add more than one subnet for a network
-                    if network.get("subnets"):
-                        subnet_list = neutron.list_subnets(id=network.get("subnets"))
-                        network_obj.network_cidr = subnet_list.get("subnets")[0].get("cidr")
                     network_obj.status = network.get("status")
                     network_obj.is_dirty = True
                     network_obj.creator = user
                     network_obj.updated_on = discovery_datetime
                     network_obj.save()
+
+                    # Setting all records belongs to tenant as not dirty/updated
+                    Subnet.objects.filter(network__network_id=network.get("id"))\
+                        .update(is_dirty=False)
+
+                    subnets = neutron.list_subnets(network_id=network.get("id"))
+                    for subnet in subnets.get("subnets"):
+                        subnet_obj = None
+                        try:
+                            filters = {
+                                "network__network_id": network.get("id"),
+                                "subnet_id": subnet.get("id")
+                            }
+                            print filters
+                            subnet_obj = Subnet.objects.filter(**filters).get()
+                        except Subnet.DoesNotExist:
+                            subnet_obj = Subnet()
+                        subnet_obj.subnet_id = subnet.get("id")
+                        subnet_obj.network_id = network_obj.id
+                        subnet_obj.subnet_name = subnet.get("name")
+                        subnet_obj.cidr = subnet.get("cidr")
+                        subnet_obj.is_dirty = True
+                        subnet_obj.save()
+
+                    # Deleting subnets which are got changed after discovery
+                    Subnet.objects.filter(network__network_id=network.get("id"))\
+                        .filter(is_dirty=False).delete()
+
                 # Deleting networks which are not got changed after discovery
                 Network.objects.filter(tenant__tenant_id=tenant_obj.id)\
                     .filter(is_dirty=False).delete()
 
-                # Setting all records belongs to tenant as not dirty/updated
-                Router.objects.filter(tenant__tenant_id=tenant.id)\
-                    .update(is_dirty=False)
-                routers = neutron.list_routers(tenant_id=tenant.id)
-                for router in routers.get("routers", []):
-                    router_obj = None
-                    try:
-                        filters = {
-                            "tenant__tenant_id": tenant.id,
-                            "router_name": router.get("name")
-                        }
-                        router_obj = Router.objects.filter(**filters).get()
-                    except Router.DoesNotExist:
-                        router_obj = Router()
-                        router_obj.created_on = discovery_datetime
-                    router_obj.tenant = tenant_obj
-                    router_obj.router_id = router.get("id")
-                    router_obj.router_name = router.get("name")
-                    router_obj.status = router.get("status")
-                    router_obj.is_dirty = True
-                    router_obj.creator = user
-                    router_obj.updated_on = discovery_datetime
-                    router_obj.save()
-                # Deleting routers which are got changed after discovery
-                Router.objects.filter(tenant__tenant_id=tenant_obj.id)\
-                    .filter(is_dirty=False).delete()
-
-                # Deleting tenants which are got changed after discovery
-                Tenant.objects.filter(cloud_id=cloud_id)\
-                    .filter(is_dirty=False).delete()
-
                 serializer = TenantSerializer(tenant_obj)
                 discovery_result.append(serializer.data)
+
+            # Deleting tenants which are got changed after discovery
+            Tenant.objects.filter(cloud_id=cloud_id)\
+                .filter(is_dirty=False).delete()
         return discovery_result

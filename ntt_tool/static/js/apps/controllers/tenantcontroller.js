@@ -14,20 +14,3 @@ nttApp.controller('TenantListCtrl', function($scope, $routeParams, tenantService
         });
     };
 });
-
-//nttApp.controller('TenantDiscoveryCtrl', function($scope, $routeParams, tenantService){
-//    console.log($routeParams)
-//    $scope.cloudId = $routeParams.id;
-//    $scope.discoveryResult = {};
-//    console.log("1")
-//    $scope.showLoading = true;
-//    $scope.discover = function(){
-//        console.log("2")
-//        tenantService.discover($scope.cloudId).then(function(response){
-//            console.log("3")
-//            $scope.showLoading = false;
-//            $scope.discoveryResult = response;
-//        });
-//    };
-//    $scope.discover();
-//});

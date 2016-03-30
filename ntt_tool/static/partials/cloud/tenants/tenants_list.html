@@ -10,22 +10,35 @@
     <h1>Tenants</h1>
 </div>
 
-<table class="table table-bordered bg-white" ng-hide="tenants.length <= 0">
-    <tr>
-        <th>Tenant Name</th>
-        <th class="col-md-1">Status</th>
-    </tr>
-    <tr ng-repeat="item in tenants">
-        <td>{$ item.tenant_name $}</td>
-        <td>
-            <span class="label" ng-class="{'label-success': item.enabled, 'label-danger': !item.enabled}">
-                {$ item.enabled === true ? "Enabled" : "Disabled" $}
+<div class="tenants-list">
+    <div class="panel panel-default panel-light" ng-repeat="tenant in tenants">
+        <div class="panel-heading">
+            {$ tenant.tenant_name $}
+            <span class="label pull-right" ng-class="{'label-success': tenant.enabled, 'label-danger': !tenant.enabled}">
+                {$ tenant.enabled === true ? "Enabled" : "Disabled" $}
             </span>
-        </td>
-    </tr>
-</table>
+        </div>
+        <table class="table table-bordered table-condensed" ng-show="tenant.networks.length > 0">
+            <tr>
+                <th class="col-md-7">Network</th>
+                <th class="col-md-4">Subnet Associated</th>
+                <th class="col-md-1">Status</th>
+            </tr>
+            <tr ng-repeat="network in tenant.networks">
+                <td>{$ network.network_name $}</td>
+                <td>
+                    <div ng-repeat="subnet in network.subnets">
+                        <b>{$ subnet.subnet_name $}</b> : <span>{$ subnet.cidr $}</span>
+                    </div>
+                </td>
+                <td>{$ network.status $}</td>
+            </tr>
+        </table>
 
+        <div class="panel-body" ng-hide="tenant.networks.length > 0">
+            No networks.
+        </div>
+    </div>
+</div>
 <p ng-show="tenants.length <= 0">No tenants discovered. Please click on discover tenants</p>
-
-
 <ng-include src="'/static/partials/cloud/tenants/tenants_discovery.html'"></ng-include>

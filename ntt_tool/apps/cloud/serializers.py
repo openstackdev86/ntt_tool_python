@@ -9,7 +9,14 @@ class CloudSerializer(serializers.ModelSerializer):
         exclude = ('creator', 'updated_on')
 
 
+class SubnetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subnet
+
+
 class NetworkSerializer(serializers.ModelSerializer):
+    subnets = SubnetSerializer(many=True, read_only=True)
 
     class Meta:
         model = Network
@@ -31,7 +38,6 @@ class TenantListSerializer(serializers.ModelSerializer):
 
 class TenantSerializer(serializers.ModelSerializer):
     networks = NetworkSerializer(many=True, read_only=True)
-    routers = RouterSerializer(many=True, read_only=True)
 
     class Meta:
         model = Tenant

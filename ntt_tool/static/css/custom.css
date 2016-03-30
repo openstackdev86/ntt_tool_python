@@ -42,7 +42,6 @@ body {
   color: #fff;
   background-color: transparent;
 }
-
 .navbar-header a {
     text-transform: uppercase;
     font-size: 14px;
@@ -66,12 +65,27 @@ td > a{
     color: #555;
 }
 
-.panel{
-    border: 1px solid #fbfbfb;
+
+/* utility classes */
+.bg-white {
+    background: #fff;
 }
-.panel-info > .panel-heading{
-    background-color: #ededed;
-    border: 1px solid #fbfbfb;
+
+.border {
+    border: 1px solid #ddd;
+}
+
+.noborder{
+    border: none !important;
+}
+
+.mb0 {
+    margin-bottom: 0;
+}
+/* end: utility classes */
+
+.panel-default .panel-heading {
+    background: #dddddd;
 }
 
 .btn-primary{
@@ -79,10 +93,10 @@ td > a{
     border: none;
 }
 
-.page-header {
-    background: #f6f6f6;
-    border-color: #e9e9e9;
-}
+/*.page-header {*/
+    /*background: #f6f6f6;*/
+    /*border-color: #e9e9e9;*/
+/*}*/
 .page-header {
     border-bottom: 1px solid #e4e4e4;
     margin-top: 0;
@@ -100,14 +114,6 @@ td > a{
 
 .page-header .btn{
     margin-top: 18px;
-}
-
-.bg-white {
-    background: #fff;
-}
-
-.border {
-    border: 1px solid #ddd;
 }
 
 .modal-body {
@@ -149,4 +155,9 @@ td > a{
     border-bottom: 1px solid #ddd;
     margin-bottom: 15px;
     padding-bottom: 10px;
+}
+
+.tenants-list {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
 }

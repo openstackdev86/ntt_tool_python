@@ -54,16 +54,6 @@ nttApp.config(['$routeProvider', function($routeProvider){
         templateUrl: '/static/partials/cloud/cloud_view.html',
     });
 
-
-    /**
-     * URL patterns for cloud tenants and tenant discovery
-     */
-    $routeProvider.when('/cloud/tenant/discovery/:cloudId/', {
-        controller: 'TenantDiscoveryCtrl',
-        templateUrl: '/static/partials/cloud/tenants/tenants_discovery.html',
-    });
-
-
     /**
      * URL patterns for cloud traffic
      */

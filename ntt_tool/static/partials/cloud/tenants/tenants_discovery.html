@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Discover Tenants</h4>
+                <h4 class="modal-title" id="myModalLabel">Tenants & Networks</h4>
             </div>
             <div class="modal-body">
 
@@ -15,49 +15,35 @@
                 </div>
 
                 <div ng-hide="showLoading">
-                    <div class="panel panel-info" ng-repeat="tenant in tenants">
+                    <div class="panel panel-default panel-light" ng-repeat="tenant in tenants">
                         <div class="panel-heading">
-                            <span>{$ tenant.tenant_name $}</span>
-                            <span class="pull-right">Enabled: {$ tenant.enabled $}</span>
+                            {$ tenant.tenant_name $}
+                            <span class="label pull-right" ng-class="{'label-success': tenant.enabled, 'label-danger': !tenant.enabled}">
+                                {$ tenant.enabled === true ? "Enabled" : "Disabled" $}
+                            </span>
                         </div>
-                        <div class="panel-body">
-                                <div class="col-md-6">
-                                    <div ng-show="tenant.networks.length > 0">
-                                        <h5 class="text-primary">Networks</h5>
-                                        <table class="table table-bordered table-condensed">
-                                            <tr>
-                                                <th>Name</th>
-                                                <th class="col-md-3">Network CIDR</th>
-                                                <th class="col-md-1">Status</th>
-                                            </tr>
-                                            <tr ng-repeat="network in tenant.networks">
-                                                <td>{$ network.network_name || '-' $}</td>
-                                                <td>{$ network.network_cidr || '-' $}</td>
-                                                <td>{$ network.status || '-' $}</td>
-                                            </tr>
-                                        </table>
+                        <table class="table table-bordered table-condensed" ng-show="tenant.networks.length > 0">
+                            <tr>
+                                <th class="col-md-7">Network</th>
+                                <th class="col-md-4">Subnet Associated</th>
+                                <th class="col-md-1">Status</th>
+                            </tr>
+                            <tr ng-repeat="network in tenant.networks">
+                                <td>{$ network.network_name $}</td>
+                                <td>
+                                    <div ng-repeat="subnet in network.subnets">
+                                        <b>{$ subnet.subnet_name $}</b> : <span>{$ subnet.cidr $}</span>
                                     </div>
-                                    <div ng-hide="tenant.networks.length > 0">No networks found.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div ng-show="tenant.routers.length > 0">
-                                        <h5 class="text-primary">Routers</h5>
-                                        <table class="table table-bordered table-condensed">
-                                            <tr>
-                                                <th>Name</th>
-                                                <th class="col-md-1">Status</th>
-                                            </tr>
-                                            <tr ng-repeat="router in tenant.routers">
-                                                <td>{$ router.router_name || '-' $}</td>
-                                                <td>{$ router.status || '-' $}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div ng-hide="tenant.routers.length > 0">No routers found.</div>
-                                </div>
-                            </div>
-                            <!-- ./panel-body -->
+                                </td>
+                                <td>{$ network.status $}</td>
+                            </tr>
+                        </table>
+
+                        <div class="panel-body" ng-hide="tenant.networks.length > 0">
+                            No networks.
+                        </div>
                     </div>
+                    <!-- ./panel -->
                 </div>
                 <!-- end: showHideLoading -->
             </div>

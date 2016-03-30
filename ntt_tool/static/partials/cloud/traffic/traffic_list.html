@@ -4,7 +4,8 @@
     </a>
     <h1>Traffic</h1>
 </div>
-<table class="table table-bordered bg-white">
+
+<table class="table table-bordered bg-white" ng-show="trafficList.length > 0">
     <tr>
         <th>Name</th>
         <th>Allowed Delta Percentage</th>
@@ -26,9 +27,14 @@
         <td>{$ cloudTraffic.iperf_duration $}sec</td>
         <td>{$ cloudTraffic.tenant_type $}</td>
         <td>
-            <a href="#/cloud/traffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info" uib-tooltip="Edit Traffic"><i class="fa fa-edit fa-fw"></i></a>
-            <a href class="text-danger" ng-click="delete($index)" uib-tooltip="Delete Traffic"><i class="fa fa-trash-o fa-fw"></i></a></span>
-            <a href="#/cloud/traffic/test/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-success" uib-tooltip="Start Traffic Test"><i class="fa fa-play fa-fw"></i></a></span>
+            <a href="#/cloud/traffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info"><i class="fa fa-edit fa-fw"></i></a>
+            <a href class="text-danger" ng-click="delete($index)"><i class="fa fa-trash-o fa-fw"></i></a></span>
+            <a href="#/cloud/traffic/test/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-success"><i class="fa fa-play fa-fw"></i></a></span>
         </td>
     </tr>
 </table>
+
+
+
+
+<p ng-hide="trafficList.length > 0">No traffic(s).</p>

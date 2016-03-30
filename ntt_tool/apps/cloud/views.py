@@ -7,7 +7,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from models import *
 from serializers import *
 from openstackscripts.novaclientutils import NovaClientUtils
-from openstackscripts.tenantnetworkdiscovery import TenantDiscovery, NetworkRouterDiscovery
+from openstackscripts.tenantnetworkdiscovery import *
 
 
 class CloudViewSet(viewsets.ModelViewSet):
@@ -27,7 +27,7 @@ class TenantViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     action_serializers = {
         'retrieve': TenantSerializer,
-        'list': TenantListSerializer,
+        'list': TenantSerializer,
         'create': TenantSerializer,
         'update': TenantSerializer,
     }
@@ -69,8 +69,8 @@ class TenantViewSet(viewsets.ModelViewSet):
         tenant_discovery = TenantDiscovery(**credentials)
         tenants = tenant_discovery.get_tenants()
 
-        network_router_discovery = NetworkRouterDiscovery(**credentials)
-        tenant_networks_routers = network_router_discovery.get_networks_and_routers(
+        network_subnets_discovery = NetworkSubnetDiscovery(**credentials)
+        tenant_networks_routers = network_subnets_discovery.get_networks_and_subnets(
                 request.user,
                 cloud_id,
                 tenants

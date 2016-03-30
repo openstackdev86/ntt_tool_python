@@ -37,9 +37,7 @@ class Network(models.Model):
     tenant = models.ForeignKey(Tenant, related_name="networks")
     network_id = models.CharField(max_length=255)
     network_name = models.CharField(max_length=255)
-    network_cidr = models.CharField(max_length=255)
     shared = models.BooleanField(default=False)
-    subnet = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=25)
     is_dirty = models.BooleanField(default=False)
     creator = models.ForeignKey(User, blank=True, null=True)
@@ -48,6 +46,17 @@ class Network(models.Model):
 
     class Meta:
         db_table = "cloud_tenant_networks"
+
+
+class Subnet(models.Model):
+    network = models.ForeignKey(Network, related_name="subnets")
+    subnet_id = models.CharField(max_length=255)
+    subnet_name = models.CharField(max_length=255)
+    cidr = models.CharField(max_length=255)
+    is_dirty = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "cloud_tenant_network_subnets"
 
 
 class Router(models.Model):
