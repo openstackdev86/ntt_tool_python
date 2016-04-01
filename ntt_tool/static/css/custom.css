@@ -84,8 +84,12 @@ td > a{
 }
 /* end: utility classes */
 
+.panel {
+    border-radius: 0;
+}
 .panel-default .panel-heading {
     background: #dddddd;
+    border-radius: 0;
 }
 
 .btn-primary{

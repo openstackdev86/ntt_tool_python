@@ -82,6 +82,11 @@ class Traffic(models.Model):
         ('north-south', 'North to South'),
     )
 
+    TEST_ENVIRONMENT_CHOICES = (
+        ('dev', 'Development/Test'),
+        ('prod', 'Production'),
+    )
+
     cloud = models.ForeignKey(Cloud, blank=True, null=True, related_name="cloud_traffic")
     name = models.CharField(max_length=256)
     allowed_delta_percentage = models.FloatField()
@@ -95,6 +100,7 @@ class Traffic(models.Model):
     tenants = models.ManyToManyField(Tenant)
     external_host = models.CharField(max_length=100, blank=True, null=True)
     ssh_gateway = models.CharField(max_length=100, blank=True, null=True)
+    test_environment = models.CharField(max_length=20, choices=TEST_ENVIRONMENT_CHOICES, default='dev')
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
@@ -102,7 +108,3 @@ class Traffic(models.Model):
     class Meta:
         db_table = "cloud_traffic"
 
-
-# class TrafficTenant(models.Model):
-#     traffic = models.ForeignKey(Traffic)
-#     tenant = models.ForeignKey(Tenant)

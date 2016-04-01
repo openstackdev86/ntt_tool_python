@@ -52,7 +52,7 @@ class TrafficListSerializer(serializers.ModelSerializer):
 
 
 class TrafficSerializer(serializers.ModelSerializer):
-    tenants = TenantListSerializer(many=True, required=False)
+    tenants = TenantSerializer(many=True, required=False)
 
     class Meta:
         model = Traffic

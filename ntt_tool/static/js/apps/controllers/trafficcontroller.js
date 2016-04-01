@@ -20,13 +20,14 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
     $scope.event = $scope.id == undefined ? "add" : "edit";
     $scope.cloudTraffic = {
         "cloud_id": $scope.cloudId,
-        "tenant_type": "all",
+        "tenant_type": "intra-tenant",
         "test_method": "icmp",
-        "tenants": [],
+        "tenant": {},
     };
 
     if ($scope.event == "edit"){
         trafficService.get($scope.id).then(function(response){
+            console.log(response);
             $scope.cloudTraffic = response;
             $scope.getTenants();
         });
@@ -39,15 +40,11 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
                 $scope.tenants = response;
             }
             else {
+                $scope.tenants = response;
+                // Iterating through tenants to make radio button checked for matching tenant
                 angular.forEach(response, function(tenant, i){
-                    var isSelected = false;
-                    angular.forEach($scope.cloudTraffic.tenants, function(selectedTenant, j){
-                        if (tenant.tenant_name == selectedTenant.tenant_name){
-                            isSelected = true;
-                        }
-                    });
-                    if (!isSelected){
-                        $scope.tenants.push(tenant);
+                    if ($scope.cloudTraffic.tenants[0].tenant_id == tenant.tenant_id){
+                        $scope.cloudTraffic.tenants[0] = tenant;
                     }
                 });
             }
@@ -74,7 +71,6 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
         angular.forEach($scope.cloudTraffic.tenants, function(item, index){
             selectedList.push(item.id);
         });
-        console.log(selectedList)
         return selectedList;
     };
 
@@ -91,6 +87,10 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
             });
         }
     };
+
+
+
+    $scope.selectedTenant = {};
 });
 
 nttApp.controller('TrafficTestCtrl', function ($scope, $routeParams, trafficService) {
