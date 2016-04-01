@@ -1,3 +1,4 @@
+import json
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
@@ -84,7 +85,7 @@ class TrafficViewSet(viewsets.ModelViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     action_serializers = {
-        'retrieve': TrafficSerializer,
+        'retrieve': TrafficRetrieveSerializer,
         'list': TrafficListSerializer,
         'create': TrafficSerializer,
         'update': TrafficSerializer,
@@ -115,6 +116,26 @@ class TrafficViewSet(viewsets.ModelViewSet):
             creator=self.request.user,
             cloud_id=self.request.data.get("cloud_id")
         )
+
+    @detail_route(methods=["get"], url_path="select/tenant/(?P<tenant_id>[-\w]+)")
+    def select_tenant(self, request, pk=None, tenant_id=None):
+        traffic = Traffic.objects.get(pk=pk)
+        if traffic.test_type == 'intra-tenant':
+            traffic.tenants.clear()
+            traffic.tenants.add(
+                Tenant.objects.filter(tenant_id=tenant_id).get()
+            )
+        traffic.save()
+        serializer = TrafficSerializer(traffic)
+        return Response(serializer.data)
+
+    @detail_route(methods=["get"], url_path="select/network")
+    def select_network(self, request, pk=None):
+        network = Network.objects\
+            .filter(network_id=request.GET.get("network_id")).get()
+        network.is_selected = json.loads(request.GET.get("is_selected"))
+        network.save()
+        return Response(True)
 
     @detail_route(methods=["get"], url_path="vm/launch")
     def launch_vm(self, request, pk=None):

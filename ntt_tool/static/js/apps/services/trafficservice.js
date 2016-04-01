@@ -19,6 +19,14 @@ nttApp.service('trafficService', function(dataService){
         return dataService.delete('/api/traffic/'+pk+'/');
     };
 
+    this.selectTenant = function(pk, tenant_id){
+        return dataService.get('/api/traffic/' + pk + '/select/tenant/' + tenant_id + '/');
+    };
+
+    this.selectNetwork = function(pk, network_id, is_selected){
+        return dataService.get('/api/traffic/' + pk + '/select/network/?network_id=' + network_id + '&is_selected=' + is_selected);
+    };
+
     this.launchVM = function(pk){
         return dataService.get('/api/traffic/' + pk + '/vm/launch/');
     };

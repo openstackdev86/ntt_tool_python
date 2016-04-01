@@ -21,7 +21,7 @@
                 <div>Test Type : {$ cloudTraffic.tenant_type $}</div>
             </div>
             <div class="col-md-2">
-                <b><a href="#/cloud/traffic/view/{$ cloudTraffic.id $}/">{$ cloudTraffic.name | limitTo: 20 $}</a></b>
+                <b><a href="#/cloud/traffic/view/{$ cloud.id $}/{$ cloudTraffic.id $}/">{$ cloudTraffic.name | limitTo: 20 $}</a></b>
                 <div>&nbsp;</div>
                 <div class="pull-right">
                     <a href="#/cloud/traffic/edit/{$ cloud.id $}/{$ cloudTraffic.id $}/" class="text-info"><i class="fa fa-edit fa-fw"></i></a>

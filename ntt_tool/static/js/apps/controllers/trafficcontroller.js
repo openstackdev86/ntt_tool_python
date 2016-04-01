@@ -18,80 +18,70 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
     $scope.cloudId = $routeParams.cloudId;
     $scope.id = $routeParams.id;
     $scope.event = $scope.id == undefined ? "add" : "edit";
-    $scope.cloudTraffic = {
+    $scope.traffic = {
         "cloud_id": $scope.cloudId,
-        "tenant_type": "intra-tenant",
+        "test_type": "intra-tenant",
         "test_method": "icmp",
-        "tenant": {},
+        "test_environment": "dev",
     };
 
     if ($scope.event == "edit"){
         trafficService.get($scope.id).then(function(response){
-            console.log(response);
-            $scope.cloudTraffic = response;
-            $scope.getTenants();
+            $scope.traffic = response;
         });
     }
+
+    $scope.save = function(){
+        if($scope.event == "add") {
+            trafficService.create($scope.traffic).then(function (response) {
+                $location.path("cloud/traffic/view/" + $scope.cloudId + "/" + response.id + "/");
+            });
+        }
+        else {
+            trafficService.update($scope.traffic.id, $scope.traffic).then(function(response){
+                $location.path("cloud/traffic/view/" + $scope.cloudId + "/" + $scope.traffic.id + "/");
+            });
+        }
+    };
+});
+
+
+nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficService, tenantService){
+    $scope.cloudId = $routeParams.cloudId;
+    $scope.id = $routeParams.id;
+    $scope.traffic = {};
+
+    trafficService.get($scope.id).then(function(response){
+        $scope.traffic = response;
+        $scope.getTenants();
+    });
 
     $scope.tenants = [];
     $scope.getTenants = function(){
         tenantService.list($scope.cloudId).then(function(response){
-            if ($scope.event == 'add'){
-                $scope.tenants = response;
-            }
-            else {
-                $scope.tenants = response;
-                // Iterating through tenants to make radio button checked for matching tenant
-                angular.forEach(response, function(tenant, i){
-                    if ($scope.cloudTraffic.tenants[0].tenant_id == tenant.tenant_id){
-                        $scope.cloudTraffic.tenants[0] = tenant;
-                    }
-                });
-            }
+            $scope.tenants = response;
+            // Iterating through tenants to make radio button checked for matching tenant
+            angular.forEach(response, function(tenant, i){
+                if ($scope.traffic.tenants[0].tenant_id == tenant.tenant_id){
+                    $scope.traffic.tenants[0] = tenant;
+                }
+            });
         });
     };
-    if($scope.event == 'add'){
-        $scope.getTenants();
+
+    $scope.selectTenant = function(tenant_id){
+        trafficService.selectTenant($scope.traffic.id, tenant_id).then(function(response){
+            console.log(response)
+        });
+    };
+
+    $scope.selectNetwork = function(network_id, is_selected){
+        trafficService.selectNetwork($scope.traffic.id, network_id, is_selected).then(function(response){
+            console.log(response)
+        });
     }
-
-    $scope.selectTenant = function($index){
-        var selectedTenant = angular.copy($scope.tenants[$index]);
-        $scope.tenants.splice($index, 1);
-        $scope.cloudTraffic.tenants.push(selectedTenant);
-    };
-
-    $scope.unSelectTenant = function($index){
-        var unselectedTenant = angular.copy($scope.cloudTraffic.tenants[$index]);
-        $scope.cloudTraffic.tenants.splice($index, 1);
-        $scope.tenants.push(unselectedTenant);
-    };
-
-    $scope.getSelectedTenants = function(){
-        var selectedList = [];
-        angular.forEach($scope.cloudTraffic.tenants, function(item, index){
-            selectedList.push(item.id);
-        });
-        return selectedList;
-    };
-
-    $scope.save = function(){
-        if($scope.event == "add") {
-            $scope.cloudTraffic["tenants"] = $scope.getSelectedTenants()
-            trafficService.create($scope.cloudTraffic).then(function (response) {
-                $location.path("cloud/view/" + $scope.cloudId + "/");
-            });
-        }
-        else {
-            trafficService.update($scope.cloudTraffic.id, $scope.cloudTraffic).then(function(response){
-                $location.path("cloud/view/" + $scope.cloudId + "/");
-            });
-        }
-    };
-
-
-
-    $scope.selectedTenant = {};
 });
+
 
 nttApp.controller('TrafficTestCtrl', function ($scope, $routeParams, trafficService) {
     $scope.id = $routeParams.id;

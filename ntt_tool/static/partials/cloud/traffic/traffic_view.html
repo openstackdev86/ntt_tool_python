@@ -1,0 +1,163 @@
+<ng-include src="'/static/partials/common/header.html'"></ng-include>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li><a href="#/cloud/">Cloud List</a></li>
+                <li><a href="#/cloud/view/{$ cloudId $}/">Cloud Details</a></li>
+                <li class="active">Traffic</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h1>Traffic Details</h1>
+                <a href="#/cloud/traffic/edit/{$ cloudId $}/{$ id $}/" class="btn btn-primary btn-sm pull-right"><i class="fa fa-edit fa-fw"></i> Edit</a>
+            </div>
+            <table class="table bg-white border">
+                <tr>
+                    <td class="text-right col-md-3">Name : </td>
+                    <td class="text-info col-md-3">{$ traffic.name $}</td>
+                    <td class="text-right col-md-3">Allowed delta percentage :  </td>
+                    <td class="text-info col-md-3">{$ traffic.allowed_delta_percentage $} %</td>
+                </tr>
+                <tr>
+                    <td class="text-right col-md-3">Remote User : </td>
+                    <td class="text-info col-md-3">{$ traffic.remote_user $}</td>
+                    <td class="text-right col-md-3">Number of workers :  </td>
+                    <td class="text-info col-md-3">{$ traffic.number_of_workers $}</td>
+                </tr>
+                <tr>
+
+                    <td class="text-right col-md-3">External host : </td>
+                    <td class="text-info col-md-3">{$ traffic.external_host $}</td>
+                    <td class="text-right col-md-3">IPERF duration :  </td>
+                    <td class="text-info col-md-3">{$ traffic.iperf_duration $} sec</td>
+                </tr>
+                <tr>
+                    <td class="text-right col-md-3">SSH gateway : </td>
+                    <td class="text-info col-md-3">{$ traffic.ssh_gateway $}</td>
+                    <td class="text-right col-md-3">Test Type :  </td>
+                    <td class="text-info col-md-3">{$ traffic.test_type $}</td>
+                </tr>
+                <tr>
+                    <td class="text-right col-md-3">Test result path :  </td>
+                    <td class="text-info col-md-3">{$ traffic.test_result_path $}</td>
+                    <td class="text-right col-md-3">Test Method :  </td>
+                    <td class="text-info col-md-3">{$ traffic.test_method $}</td>
+                </tr>
+                <tr>
+                    <td class="text-right col-md-3">Test environment :  </td>
+                    <td class="text-info col-md-3">{$ traffic.test_environment $}</td>
+                    <td class="text-right col-md-3">&nbsp;</td>
+                    <td class="text-info col-md-3">&nbsp;</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h1>Select Tenants & Networks</h1>
+            </div>
+
+            <!-- Test type : Intra tenant -->
+            <div ng-show="traffic.test_type == 'intra-tenant'">
+                <!-- Dev environment -->
+                <div ng-show="traffic.test_environment == 'dev'">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Tenants
+                                </div>
+                                <table class="table table-bordered bg-white" ng-show="tenants.length > 0">
+                                    <tr>
+                                        <th>Tenant Name</th>
+                                        <th class="col-md-1">Status</th>
+                                        <th class="col-md-1"></th>
+                                    </tr>
+                                    <tr ng-repeat="tenant in tenants | orderBy:'name'">
+                                        <td>{$ tenant.tenant_name $}</td>
+                                        <td>
+                                            <span class="label" ng-class="{'label-success': tenant.enabled, 'label-danger': !tenant.enabled}">
+                                                {$ tenant.enabled === true ? "Enabled" : "Disabled" $}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="radio"
+                                                   ng-model="traffic.tenants[0]"
+                                                   ng-value="tenant"
+                                                   ng-checked="(traffic.tenants[0].tenant_id == tenant.tenant_id)"
+                                                   ng-change="selectTenant(tenant.tenant_id)"
+                                                    />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="panel panel-default panel-light" ng-if="traffic.tenants[0]">
+                                <div class="panel-heading">
+                                    Selected Tenant : {$ traffic.tenants[0].tenant_name $}
+                                    <span class="label pull-right"
+                                          ng-class="{'label-success': traffic.tenants[0].enabled, 'label-danger': !traffic.tenants[0].enabled}">
+                                        {$ traffic.tenants[0].enabled === true ? "Enabled" : "Disabled" $}
+                                    </span>
+                                </div>
+
+                                <div class="list-group">
+                                    <div class="list-group-item" ng-show="traffic.tenants[0].networks.length > 0">
+                                        <div class="row">
+                                            <div class="col-md-1">&nbsp;</div>
+                                            <div class="col-md-4"><b>Network</b></div>
+                                            <div class="col-md-5"><b>Subnet Associated</b></div>
+                                            <div class="col-md-1"><b>Status</b></div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item" ng-repeat="network in traffic.tenants[0].networks">
+                                        <div class="row">
+                                            <div class="col-md-1">
+                                                <input type="checkbox"
+                                                       ng-model="network.is_selected"
+                                                       ng-true-value="true"
+                                                       ng-false-value="false"
+                                                       ng-change="selectNetwork(network.network_id, network.is_selected)" />
+                                            </div>
+                                            <div class="col-md-4">{$ network.network_name $}</div>
+                                            <div class="col-md-5">
+                                                <div ng-repeat="subnet in network.subnets">
+                                                    <b>{$ subnet.subnet_name $}</b> : <span>{$ subnet.cidr $}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">{$ network.status $}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body" ng-hide="traffic.tenants[0].networks.length > 0">
+                                    No networks.
+                                </div>
+                            </div>
+                            <div class="panel panel-default" ng-hide="traffic.tenants[0]">
+                                <div class="panel-heading">No tenant selected</div>
+                                <div class="panel-body">
+                                    Please select tenant
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end: Dev environment -->
+            </div>
+            <!-- end: Test type : Intra tenant -->
+        </div>
+        <!-- ./col-md-12 -->
+    </div>
+    <!-- /row -->
+</div>

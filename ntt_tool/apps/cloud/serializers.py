@@ -52,28 +52,36 @@ class TrafficListSerializer(serializers.ModelSerializer):
 
 
 class TrafficSerializer(serializers.ModelSerializer):
+    # tenants = TenantSerializer(many=True, required=False, read_only=True)
+
+    class Meta:
+        model = Traffic
+        exclude = ('creator', 'updated_on',)
+
+
+class TrafficRetrieveSerializer(serializers.ModelSerializer):
     tenants = TenantSerializer(many=True, required=False)
 
     class Meta:
         model = Traffic
         exclude = ('creator', 'updated_on',)
 
-    def create(self, validated_data):
-        # get tenants
-        tenants_data = validated_data.pop("tenants")
-        # create traffic instance
-        traffic = self.Meta.model.objects.create(**validated_data)
-        for tenant_id in tenants_data:
-            traffic.tenants.add(tenant_id)
-        traffic.save()
-        return traffic
-
-    def update(self, instance, validated_data):
-        # get tenants
-        instance.tenants.clear()
-        tenants_data = validated_data.pop("tenants")
-        for tenant in tenants_data:
-            tenant_obj = Tenant.objects.filter(**tenant).get()
-            instance.tenants.add(tenant_obj)
-        instance.save()
-        return instance
+    # def create(self, validated_data):
+    #     # get tenants
+    #     tenants_data = validated_data.pop("tenants")
+    #     # create traffic instance
+    #     traffic = self.Meta.model.objects.create(**validated_data)
+    #     for tenant_id in tenants_data:
+    #         traffic.tenants.add(tenant_id)
+    #     traffic.save()
+    #     return traffic
+    #
+    # def update(self, instance, validated_data):
+    #     # get tenants
+    #     instance.tenants.clear()
+    #     tenants_data = validated_data.pop("tenants")
+    #     for tenant in tenants_data:
+    #         tenant_obj = Tenant.objects.filter(**tenant).get()
+    #         instance.tenants.add(tenant_obj)
+    #     instance.save()
+    #     return instance
