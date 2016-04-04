@@ -11,3 +11,6 @@ class KeystoneClientUtils(OpenStackClientUtils):
 
     def get_token(self):
         return self.keystone.auth_ref.get("token", {}).get("id")
+
+    def get_tenants(self):
+        return self.keystone.tenants.list()

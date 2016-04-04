@@ -10,17 +10,10 @@ from ntt_tool.apps.cloud.serializers import TenantSerializer
 logger = logging.getLogger(__name__)
 
 
-class TenantDiscovery(KeystoneClientUtils):
-
-    def get_tenants(self):
-        keystone = self.get_client_instance()
-        return keystone.tenants.list()
-
-
 class NetworkSubnetDiscovery(NeutronClientUtils):
 
     def get_networks_and_subnets(self, user, cloud_id, tenants):
-        neutron = self.get_client_instance()
+        # neutron = self.get_client_instance()
 
         discovery_result = []
         with transaction.atomic():
@@ -49,7 +42,7 @@ class NetworkSubnetDiscovery(NeutronClientUtils):
                 Network.objects.filter(tenant__tenant_id=tenant.id)\
                     .update(is_dirty=False)
 
-                networks = neutron.list_networks(tenant_id=tenant.id)
+                networks = self.list_networks(tenant_id=tenant.id)
                 for network in networks.get("networks", []):
                     network_obj = None
                     try:
@@ -74,7 +67,7 @@ class NetworkSubnetDiscovery(NeutronClientUtils):
                     Subnet.objects.filter(network__network_id=network.get("id"))\
                         .update(is_dirty=False)
 
-                    subnets = neutron.list_subnets(network_id=network.get("id"))
+                    subnets = self.list_subnets(network_id=network.get("id"))
                     for subnet in subnets.get("subnets"):
                         subnet_obj = None
                         try:
@@ -82,7 +75,6 @@ class NetworkSubnetDiscovery(NeutronClientUtils):
                                 "network__network_id": network.get("id"),
                                 "subnet_id": subnet.get("id")
                             }
-                            print filters
                             subnet_obj = Subnet.objects.filter(**filters).get()
                         except Subnet.DoesNotExist:
                             subnet_obj = Subnet()

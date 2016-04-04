@@ -58,7 +58,7 @@
             </table>
         </div>
     </div>
-
+     <pre>{$ traffic.selected_networks $}</pre>
     <div class="row">
         <div class="col-md-12">
             <div class="page-header">
@@ -69,89 +69,119 @@
             <div ng-show="traffic.test_type == 'intra-tenant'">
                 <!-- Dev environment -->
                 <div ng-show="traffic.test_environment == 'dev'">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    Tenants
-                                </div>
-                                <table class="table table-bordered bg-white" ng-show="tenants.length > 0">
-                                    <tr>
-                                        <th>Tenant Name</th>
-                                        <th class="col-md-1">Status</th>
-                                        <th class="col-md-1"></th>
-                                    </tr>
-                                    <tr ng-repeat="tenant in tenants | orderBy:'name'">
-                                        <td>{$ tenant.tenant_name $}</td>
-                                        <td>
-                                            <span class="label" ng-class="{'label-success': tenant.enabled, 'label-danger': !tenant.enabled}">
-                                                {$ tenant.enabled === true ? "Enabled" : "Disabled" $}
-                                            </span>
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="radio"
-                                                   ng-model="traffic.tenants[0]"
-                                                   ng-value="tenant"
-                                                   ng-checked="(traffic.tenants[0].tenant_id == tenant.tenant_id)"
-                                                   ng-change="selectTenant(tenant.tenant_id)"
-                                                    />
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <div class="panel panel-default panel-light" ng-if="traffic.tenants[0]">
-                                <div class="panel-heading">
-                                    Selected Tenant : {$ traffic.tenants[0].tenant_name $}
-                                    <span class="label pull-right"
-                                          ng-class="{'label-success': traffic.tenants[0].enabled, 'label-danger': !traffic.tenants[0].enabled}">
-                                        {$ traffic.tenants[0].enabled === true ? "Enabled" : "Disabled" $}
-                                    </span>
-                                </div>
-
-                                <div class="list-group">
-                                    <div class="list-group-item" ng-show="traffic.tenants[0].networks.length > 0">
-                                        <div class="row">
-                                            <div class="col-md-1">&nbsp;</div>
-                                            <div class="col-md-4"><b>Network</b></div>
-                                            <div class="col-md-5"><b>Subnet Associated</b></div>
-                                            <div class="col-md-1"><b>Status</b></div>
-                                        </div>
+                    <form name="selectNetworksForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        Tenants
                                     </div>
-                                    <div class="list-group-item" ng-repeat="network in traffic.tenants[0].networks">
-                                        <div class="row">
-                                            <div class="col-md-1">
-                                                <input type="checkbox"
-                                                       ng-model="network.is_selected"
-                                                       ng-true-value="true"
-                                                       ng-false-value="false"
-                                                       ng-change="selectNetwork(network.network_id, network.is_selected)" />
+                                    <table class="table table-bordered bg-white" ng-show="tenants.length > 0">
+                                        <tr>
+                                            <th>Tenant Name</th>
+                                            <th class="col-md-1">Status</th>
+                                            <th class="col-md-1"></th>
+                                        </tr>
+                                        <tr ng-repeat="tenant in tenants | orderBy:'name'">
+                                            <td>{$ tenant.tenant_name $}</td>
+                                            <td>
+                                                <span class="label" ng-class="{'label-success': tenant.enabled, 'label-danger': !tenant.enabled}">
+                                                    {$ tenant.enabled === true ? "Enabled" : "Disabled" $}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <input type="radio"
+                                                       ng-model="traffic.tenants[0]"
+                                                       ng-value="tenant"
+                                                       ng-checked="(traffic.tenants[0].tenant_id == tenant.tenant_id)"
+                                                       ng-change="selectTenant(tenant.tenant_id)"
+                                                        />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="panel panel-default panel-light" ng-if="traffic.tenants[0]">
+                                    <div class="panel-heading">
+                                        Selected Tenant : {$ traffic.tenants[0].tenant_name $}
+                                        <span class="label pull-right"
+                                              ng-class="{'label-success': traffic.tenants[0].enabled, 'label-danger': !traffic.tenants[0].enabled}">
+                                            {$ traffic.tenants[0].enabled === true ? "Enabled" : "Disabled" $}
+                                        </span>
+                                    </div>
+                                    <div class="list-group">
+                                        <div class="list-group-item" ng-show="traffic.tenants[0].networks.length > 0">
+                                            <div class="row">
+                                                <div class="col-md-1">&nbsp;</div>
+                                                <div class="col-md-4"><b>Network</b></div>
+                                                <div class="col-md-5"><b>Subnet Associated</b></div>
+                                                <div class="col-md-1"><b>Status</b></div>
                                             </div>
-                                            <div class="col-md-4">{$ network.network_name $}</div>
-                                            <div class="col-md-5">
-                                                <div ng-repeat="subnet in network.subnets">
-                                                    <b>{$ subnet.subnet_name $}</b> : <span>{$ subnet.cidr $}</span>
+                                        </div>
+                                        <div class="list-group-item" ng-repeat="network in traffic.tenants[0].networks">
+                                            <div class="row">
+                                                <div class="col-md-1">
+                                                    <input type="checkbox"
+                                                           ng-model="network.is_selected"
+                                                           ng-true-value="true"
+                                                           ng-false-value="false"
+                                                           ng-change="selectNetwork($index, network.id, network.is_selected)" />
+                                                </div>
+                                                <div class="col-md-4">{$ network.network_name $}</div>
+                                                <div class="col-md-5">
+                                                    <div ng-repeat="subnet in network.subnets">
+                                                        <b>{$ subnet.subnet_name $}</b> : <span>{$ subnet.cidr $}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-1">{$ network.status $}</div>
+                                            </div>
+
+                                            <div class="row" ng-show="network.is_selected">
+                                                <div class="col-md-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">IP Range Between</span>
+                                                        <input type="text" class="form-control"
+                                                               placeholder="{$ network.subnets[0].allocation_pool_start $}"
+                                                               ng-model="network.subnets[0].allocation_pool_start_selected"
+                                                               ng-required="network.is_selected" />
+                                                        <span class="input-group-addon">-</span>
+                                                        <input type="text" class="form-control"
+                                                               placeholder="{$ network.subnets[0].allocation_pool_end $}"
+                                                               ng-model="network.subnets[0].allocation_pool_end_selected"
+                                                               ng-required="network.is_selected" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="text-warning small">Note : Please select IP range between allocation pool : <b>{$ network.subnets[0].allocation_pool_start $}</b> - <b>{$ network.subnets[0].allocation_pool_end $}</b></div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-1">{$ network.status $}</div>
                                         </div>
                                     </div>
+                                    <div class="panel-body" ng-hide="traffic.tenants[0].networks.length > 0">
+                                        No networks.
+                                    </div>
                                 </div>
-                                <div class="panel-body" ng-hide="traffic.tenants[0].networks.length > 0">
-                                    No networks.
+                                <div class="panel panel-default" ng-hide="traffic.tenants[0]">
+                                    <div class="panel-heading">No tenant selected</div>
+                                    <div class="panel-body">
+                                        Please select tenant
+                                    </div>
                                 </div>
+                                <h1 class="text-danger">{$ selectNetworksForm.$valid $}</h1>
+                                <div ng-show="isAnyNetworkSelected">
+                                    <button
+                                        ng-disabled="isAnyNetworkSelected && selectNetworksForm.$invalid"
+                                        class="btn btn-primary btn-sm">Discover Endpoints</button>
+                                </div>
+
                             </div>
-                            <div class="panel panel-default" ng-hide="traffic.tenants[0]">
-                                <div class="panel-heading">No tenant selected</div>
-                                <div class="panel-body">
-                                    Please select tenant
-                                </div>
-                            </div>
+
+                            <!-- end: selected tenant panel -->
                         </div>
-                    </div>
+                        <!-- ./row -->
+                    </form>
                 </div>
                 <!-- end: Dev environment -->
             </div>

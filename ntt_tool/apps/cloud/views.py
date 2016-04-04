@@ -7,8 +7,10 @@ from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from models import *
 from serializers import *
+from openstackscripts.keystoneclientutils import KeystoneClientUtils
 from openstackscripts.novaclientutils import NovaClientUtils
 from openstackscripts.tenantnetworkdiscovery import *
+from openstackscripts.credentials import *
 
 
 class CloudViewSet(viewsets.ModelViewSet):
@@ -60,17 +62,10 @@ class TenantViewSet(viewsets.ModelViewSet):
         except Cloud.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        credentials = {
-            "username": cloud.keystone_user,
-            "password": cloud.keystone_password,
-            "auth_url": cloud.keystone_auth_url,
-            "tenant_name": cloud.keystone_tenant_name
-        }
+        keystone_utils = KeystoneClientUtils(**get_credentials(cloud))
+        tenants = keystone_utils.get_tenants()
 
-        tenant_discovery = TenantDiscovery(**credentials)
-        tenants = tenant_discovery.get_tenants()
-
-        network_subnets_discovery = NetworkSubnetDiscovery(**credentials)
+        network_subnets_discovery = NetworkSubnetDiscovery(**get_credentials(cloud))
         tenant_networks_routers = network_subnets_discovery.get_networks_and_subnets(
                 request.user,
                 cloud_id,
@@ -131,11 +126,26 @@ class TrafficViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=["get"], url_path="select/network")
     def select_network(self, request, pk=None):
-        network = Network.objects\
-            .filter(network_id=request.GET.get("network_id")).get()
-        network.is_selected = json.loads(request.GET.get("is_selected"))
-        network.save()
-        return Response(True)
+        traffic = Traffic.objects.get(pk=pk)
+        if json.loads(request.GET.get("is_selected")):
+            network = Network.objects.get(pk=request.GET.get("network_id"))
+            traffic.selected_networks.add(network)
+            traffic.save()
+
+            # Subnet id of the first subnet of a network
+            subnet_obj = network.subnets.all()[0]
+            neutron_utils = NeutronClientUtils(**get_credentials(traffic.cloud))
+            subnet = neutron_utils.show_subnet(subnet_id=subnet_obj.subnet_id)
+            subnet_obj.allocation_pool_start = subnet.get("allocation_pools")[0].get("start")
+            subnet_obj.allocation_pool_end = subnet.get("allocation_pools")[0].get("end")
+            subnet_obj.save()
+
+            serializer = SubnetSerializer(subnet_obj)
+            return Response(serializer.data)
+
+        traffic.selected_networks.remove(request.GET.get("network_id"))
+        traffic.save()
+        return Response(status.HTTP_200_OK)
 
     @detail_route(methods=["get"], url_path="vm/launch")
     def launch_vm(self, request, pk=None):
@@ -145,14 +155,7 @@ class TrafficViewSet(viewsets.ModelViewSet):
         except Cloud.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        credentials = {
-            "username": traffic.cloud.keystone_user,
-            "api_key": traffic.cloud.keystone_password,
-            "auth_url": traffic.cloud.keystone_auth_url,
-            "project_id": traffic.cloud.keystone_tenant_name
-        }
-        nova = NovaClientUtils(**credentials)
-
+        nova = NovaClientUtils(**get_nova_credentials(traffic.cloud))
         instances = []
         for tenant in traffic.tenants.all():
             for count, network in enumerate(tenant.networks.all()):

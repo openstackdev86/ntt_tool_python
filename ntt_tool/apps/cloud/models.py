@@ -39,11 +39,13 @@ class Network(models.Model):
     network_name = models.CharField(max_length=255)
     shared = models.BooleanField(default=False)
     status = models.CharField(max_length=25)
-    is_selected = models.BooleanField(default=False)
     is_dirty = models.BooleanField(default=False)
     creator = models.ForeignKey(User, blank=True, null=True)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return "%s | %s | Tenant:%s" % (self.id, self.network_name, self.tenant.tenant_name)
 
     class Meta:
         db_table = "cloud_tenant_networks"
@@ -54,10 +56,10 @@ class Subnet(models.Model):
     subnet_id = models.CharField(max_length=255)
     subnet_name = models.CharField(max_length=255)
     cidr = models.CharField(max_length=255)
-    allocation_range_start = models.GenericIPAddressField(blank=True, null=True)
-    allocation_range_end = models.GenericIPAddressField(blank=True, null=True)
-    selected_allocation_range_start = models.GenericIPAddressField(blank=True, null=True)
-    selected_allocation_range_end = models.GenericIPAddressField(blank=True, null=True)
+    allocation_pool_start = models.GenericIPAddressField(blank=True, null=True)
+    allocation_pool_end = models.GenericIPAddressField(blank=True, null=True)
+    allocation_pool_start_selected = models.GenericIPAddressField(blank=True, null=True)
+    allocation_pool_end_selected = models.GenericIPAddressField(blank=True, null=True)
     is_selected = models.BooleanField(default=False)
     is_dirty = models.BooleanField(default=False)
 
@@ -104,6 +106,7 @@ class Traffic(models.Model):
     iperf_duration = models.IntegerField()
     test_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='all')
     tenants = models.ManyToManyField(Tenant, blank=True)
+    selected_networks = models.ManyToManyField(Network, blank=True)
     external_host = models.CharField(max_length=100, blank=True, null=True)
     ssh_gateway = models.CharField(max_length=100, blank=True, null=True)
     test_environment = models.CharField(max_length=20, choices=TEST_ENVIRONMENT_CHOICES, default='dev')
@@ -111,6 +114,16 @@ class Traffic(models.Model):
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        return "%s | %s | Cloud:%s" % (self.id, self.name, self.cloud.name)
+
     class Meta:
         db_table = "cloud_traffic"
 
+#
+# class TrafficNetwork(models.Model):
+#     traffic = models.ForeignKey(Traffic, related_name="selected_networks")
+#     network = models.ForeignKey(Network)
+#
+#     class Meta:
+#         db_table = "cloud_traffic_selected_networks"

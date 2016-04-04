@@ -52,7 +52,6 @@ class TrafficListSerializer(serializers.ModelSerializer):
 
 
 class TrafficSerializer(serializers.ModelSerializer):
-    # tenants = TenantSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Traffic
@@ -61,6 +60,7 @@ class TrafficSerializer(serializers.ModelSerializer):
 
 class TrafficRetrieveSerializer(serializers.ModelSerializer):
     tenants = TenantSerializer(many=True, required=False)
+    selected_network = NetworkSerializer(many=True, read_only=True)
 
     class Meta:
         model = Traffic
@@ -85,3 +85,6 @@ class TrafficRetrieveSerializer(serializers.ModelSerializer):
     #         instance.tenants.add(tenant_obj)
     #     instance.save()
     #     return instance
+
+
+

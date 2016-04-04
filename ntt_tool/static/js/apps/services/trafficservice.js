@@ -23,8 +23,8 @@ nttApp.service('trafficService', function(dataService){
         return dataService.get('/api/traffic/' + pk + '/select/tenant/' + tenant_id + '/');
     };
 
-    this.selectNetwork = function(pk, network_id, is_selected){
-        return dataService.get('/api/traffic/' + pk + '/select/network/?network_id=' + network_id + '&is_selected=' + is_selected);
+    this.selectNetwork = function(pk, params){
+        return dataService.get('/api/traffic/' + pk + '/select/network/?'+$.param(params));
     };
 
     this.launchVM = function(pk){
