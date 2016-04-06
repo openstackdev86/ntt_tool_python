@@ -29,6 +29,22 @@ nttApp.service('dataService', ['$http', '$q', function ($http, $q) {
         return deferred.promise;
     };
 
+    this.postJSON = function(url, params) {
+        var deferred = $q.defer();
+        var request = $http({
+            url: url,
+            method: 'POST',
+            data: angular.toJson(params)
+        });
+        request.success(function (data, status, headers, config) {
+            deferred.resolve(data)
+        });
+        request.error(function (response) {
+            deferred.reject(response);
+        });
+        return deferred.promise;
+    };
+
     this.update = function (url, params) {
         var deferred = $q.defer();
         var request = $http({

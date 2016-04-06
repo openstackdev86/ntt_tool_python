@@ -129,8 +129,8 @@ class TrafficViewSet(viewsets.ModelViewSet):
         traffic = Traffic.objects.get(pk=pk)
         if json.loads(request.GET.get("is_selected")):
             network = Network.objects.get(pk=request.GET.get("network_id"))
-            traffic.selected_networks.add(network)
-            traffic.save()
+            traffic_network_map = TrafficNetworksMap(traffic=traffic, network=network)
+            traffic_network_map.save()
 
             # Subnet id of the first subnet of a network
             subnet_obj = network.subnets.all()[0]
@@ -143,9 +143,17 @@ class TrafficViewSet(viewsets.ModelViewSet):
             serializer = SubnetSerializer(subnet_obj)
             return Response(serializer.data)
 
-        traffic.selected_networks.remove(request.GET.get("network_id"))
-        traffic.save()
+        TrafficNetworksMap.objects.filter(traffic=traffic)\
+            .filter(network_id=request.GET.get("network_id")).delete()
         return Response(status.HTTP_200_OK)
+
+    @detail_route(methods=["post"], url_path="endpoints/discover")
+    def discover_endpoints(self, request, pk=None):
+        import pdb
+        pdb.set_trace()
+        print request.data
+        print request.POST
+        return Response(True)
 
     @detail_route(methods=["get"], url_path="vm/launch")
     def launch_vm(self, request, pk=None):

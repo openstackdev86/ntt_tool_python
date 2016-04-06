@@ -58,9 +58,6 @@ class Subnet(models.Model):
     cidr = models.CharField(max_length=255)
     allocation_pool_start = models.GenericIPAddressField(blank=True, null=True)
     allocation_pool_end = models.GenericIPAddressField(blank=True, null=True)
-    allocation_pool_start_selected = models.GenericIPAddressField(blank=True, null=True)
-    allocation_pool_end_selected = models.GenericIPAddressField(blank=True, null=True)
-    is_selected = models.BooleanField(default=False)
     is_dirty = models.BooleanField(default=False)
 
     class Meta:
@@ -106,7 +103,7 @@ class Traffic(models.Model):
     iperf_duration = models.IntegerField()
     test_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='all')
     tenants = models.ManyToManyField(Tenant, blank=True)
-    selected_networks = models.ManyToManyField(Network, blank=True)
+    selected_networks = models.ManyToManyField(Network, blank=True, through='TrafficNetworksMap')
     external_host = models.CharField(max_length=100, blank=True, null=True)
     ssh_gateway = models.CharField(max_length=100, blank=True, null=True)
     test_environment = models.CharField(max_length=20, choices=TEST_ENVIRONMENT_CHOICES, default='dev')
@@ -120,10 +117,9 @@ class Traffic(models.Model):
     class Meta:
         db_table = "cloud_traffic"
 
-#
-# class TrafficNetwork(models.Model):
-#     traffic = models.ForeignKey(Traffic, related_name="selected_networks")
-#     network = models.ForeignKey(Network)
-#
-#     class Meta:
-#         db_table = "cloud_traffic_selected_networks"
+
+class TrafficNetworksMap(models.Model):
+    traffic = models.ForeignKey(Traffic, on_delete=models.CASCADE)
+    network = models.ForeignKey(Network, on_delete=models.CASCADE)
+    ip_range_start = models.TextField(max_length=15)
+    ip_range_end = models.TextField(max_length=15)

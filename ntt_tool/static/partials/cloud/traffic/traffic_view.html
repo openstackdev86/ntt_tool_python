@@ -58,7 +58,8 @@
             </table>
         </div>
     </div>
-     <pre>{$ traffic.selected_networks $}</pre>
+    <!-- end: traffic details -->
+
     <div class="row">
         <div class="col-md-12">
             <div class="page-header">
@@ -69,7 +70,7 @@
             <div ng-show="traffic.test_type == 'intra-tenant'">
                 <!-- Dev environment -->
                 <div ng-show="traffic.test_environment == 'dev'">
-                    <form name="selectNetworksForm">
+                    <form name="selectNetworksForm" ng-submit="discoverEndpoints()">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="panel panel-default">
@@ -94,8 +95,7 @@
                                                        ng-model="traffic.tenants[0]"
                                                        ng-value="tenant"
                                                        ng-checked="(traffic.tenants[0].tenant_id == tenant.tenant_id)"
-                                                       ng-change="selectTenant(tenant.tenant_id)"
-                                                        />
+                                                       ng-change="selectTenant(tenant.tenant_id)" />
                                             </td>
                                         </tr>
                                     </table>
@@ -144,12 +144,12 @@
                                                         <span class="input-group-addon">IP Range Between</span>
                                                         <input type="text" class="form-control"
                                                                placeholder="{$ network.subnets[0].allocation_pool_start $}"
-                                                               ng-model="network.subnets[0].allocation_pool_start_selected"
+                                                               ng-model="network.subnets[0].ip_range_start"
                                                                ng-required="network.is_selected" />
                                                         <span class="input-group-addon">-</span>
                                                         <input type="text" class="form-control"
                                                                placeholder="{$ network.subnets[0].allocation_pool_end $}"
-                                                               ng-model="network.subnets[0].allocation_pool_end_selected"
+                                                               ng-model="network.subnets[0].ip_range_end"
                                                                ng-required="network.is_selected" />
                                                     </div>
                                                 </div>
@@ -169,15 +169,18 @@
                                         Please select tenant
                                     </div>
                                 </div>
-                                <h1 class="text-danger">{$ selectNetworksForm.$valid $}</h1>
+
+                                <pre>isAnyNetworkSelected {$ isAnyNetworkSelected $}</pre>
                                 <div ng-show="isAnyNetworkSelected">
-                                    <button
-                                        ng-disabled="isAnyNetworkSelected && selectNetworksForm.$invalid"
-                                        class="btn btn-primary btn-sm">Discover Endpoints</button>
+                                    <div class="alert alert-danger" ng-show="selectNetworksForm.$invalid">
+                                        Please enter IP range for selected networks
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                            ng-disabled="selectNetworksForm.$invalid">
+                                        <i class="fa fa-search fa-fw"></i> Discover Endpoints
+                                    </button>
                                 </div>
-
                             </div>
-
                             <!-- end: selected tenant panel -->
                         </div>
                         <!-- ./row -->

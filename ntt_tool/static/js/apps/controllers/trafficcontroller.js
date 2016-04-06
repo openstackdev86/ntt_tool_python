@@ -82,17 +82,6 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
         });
     };
 
-    // Todo: Use angular watch instead to check manually for is any networks selected
-    //$scope.checkIsAnyNetworkSelected = function(){
-    //    var flag = false;
-    //    angular.forEach($scope.tenants[0].networks, function (network, i) {
-    //        if(network.is_selected){
-    //            flag = true;
-    //        }
-    //    });
-    //    $scope.isAnyNetworkSelected = flag;
-    //};
-
     $scope.selectNetwork = function($index, networkId, isSelected){
         var params = {
             "network_id": networkId,
@@ -100,12 +89,12 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
         };
         trafficService.selectNetwork($scope.traffic.id, params).then(function(response){
             if(isSelected){
-                $scope.tenants[0].networks[$index].subnets[0] = response;
+                $scope.traffic.tenants[0].networks[$index].subnets[0] = response;
             }
         });
     };
 
-    $scope.$watch('tenants[0].networks', function(newValues, oldValue, scope){
+    $scope.$watch('traffic.tenants[0].networks', function(newValues, oldValue, scope){
         var flag = false;
         angular.forEach(newValues, function(network, i){
             if(network.is_selected){
@@ -115,7 +104,23 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
         $scope.isAnyNetworkSelected = flag;
     }, true);
 
+    $scope.discoverEndpoints = function(){
+        var selectedItems = [];
+        angular.forEach($scope.tenants[0].networks, function(network, i){
+            if(network.is_selected){
+                selectedItems.push({
+                    "network_id": network.id,
+                    "ip_range_start": network.subnets[0].ip_range_start,
+                    "ip_range_end": network.subnets[0].ip_range_end,
+                })
+            }
+        });
 
+        console.log(selectedItems)
+        trafficService.discoverEndpoints($scope.traffic.id, {"data":selectedItems}).then(function(response){
+            console.log(selectedItems);
+        });
+    };
 });
 
 
