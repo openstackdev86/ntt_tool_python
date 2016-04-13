@@ -32,9 +32,12 @@ nttApp.service('dataService', ['$http', '$q', function ($http, $q) {
     this.postJSON = function(url, params) {
         var deferred = $q.defer();
         var request = $http({
+            method: "post",
             url: url,
-            method: 'POST',
-            data: angular.toJson(params)
+            data: $.param({"json": angular.toJson(params)}),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            }
         });
         request.success(function (data, status, headers, config) {
             deferred.resolve(data)

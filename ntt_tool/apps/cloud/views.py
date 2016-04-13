@@ -11,6 +11,7 @@ from openstackscripts.keystoneclientutils import KeystoneClientUtils
 from openstackscripts.novaclientutils import NovaClientUtils
 from openstackscripts.tenantnetworkdiscovery import *
 from openstackscripts.credentials import *
+from openstackscripts.endpointdiscovery import DiscoverEndpoints
 
 
 class CloudViewSet(viewsets.ModelViewSet):
@@ -114,67 +115,89 @@ class TrafficViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=["get"], url_path="select/tenant/(?P<tenant_id>[-\w]+)")
     def select_tenant(self, request, pk=None, tenant_id=None):
-        traffic = Traffic.objects.get(pk=pk)
-        if traffic.test_type == 'intra-tenant':
+        with transaction.atomic():
+            tenant = Tenant.objects.filter(tenant_id=tenant_id).get()
+
+            traffic = Traffic.objects.get(pk=pk)
             traffic.tenants.clear()
-            traffic.tenants.add(
-                Tenant.objects.filter(tenant_id=tenant_id).get()
-            )
-        traffic.save()
-        serializer = TrafficSerializer(traffic)
-        return Response(serializer.data)
+            traffic.selected_networks.clear()
+            traffic.tenants.add(tenant)
+            traffic.save()
+            TrafficNetworksMap.objects.filter(traffic=traffic).delete()
+
+            serializer = TenantSerializer(tenant)
+            return Response(serializer.data)
 
     @detail_route(methods=["get"], url_path="select/network")
     def select_network(self, request, pk=None):
-        traffic = Traffic.objects.get(pk=pk)
-        if json.loads(request.GET.get("is_selected")):
-            network = Network.objects.get(pk=request.GET.get("network_id"))
-            traffic_network_map = TrafficNetworksMap(traffic=traffic, network=network)
-            traffic_network_map.save()
+        with transaction.atomic():
+            traffic = Traffic.objects.get(pk=pk)
+            if json.loads(request.GET.get("is_selected")):
+                network = Network.objects.get(pk=request.GET.get("network_id"))
+                traffic_network_map, created = TrafficNetworksMap.objects.get_or_create(traffic=traffic, network=network)
+                traffic_network_map.save()
 
-            # Subnet id of the first subnet of a network
-            subnet_obj = network.subnets.all()[0]
-            neutron_utils = NeutronClientUtils(**get_credentials(traffic.cloud))
-            subnet = neutron_utils.show_subnet(subnet_id=subnet_obj.subnet_id)
-            subnet_obj.allocation_pool_start = subnet.get("allocation_pools")[0].get("start")
-            subnet_obj.allocation_pool_end = subnet.get("allocation_pools")[0].get("end")
-            subnet_obj.save()
+                # Subnet id of the first subnet of a network
+                subnet_obj = network.subnets.all()[0]
+                neutron_utils = NeutronClientUtils(**get_credentials(traffic.cloud))
+                subnet = neutron_utils.show_subnet(subnet_id=subnet_obj.subnet_id)
+                subnet_obj.allocation_pool_start = subnet.get("allocation_pools")[0].get("start")
+                subnet_obj.allocation_pool_end = subnet.get("allocation_pools")[0].get("end")
+                subnet_obj.save()
 
-            serializer = SubnetSerializer(subnet_obj)
-            return Response(serializer.data)
+                serializer = SubnetSerializer(subnet_obj)
+                return Response(serializer.data)
 
-        TrafficNetworksMap.objects.filter(traffic=traffic)\
-            .filter(network_id=request.GET.get("network_id")).delete()
+            TrafficNetworksMap.objects.filter(traffic=traffic)\
+                .filter(network_id=request.GET.get("network_id")).delete()
         return Response(status.HTTP_200_OK)
+
+    @detail_route(methods=["get"], url_path="endpoints")
+    def endpoints(self, request, pk=None):
+        endpoints = Endpoint.objects.filter(traffic_id=pk)
+        serializer = EndpointSerializer(endpoints, many=True)
+        return Response(serializer.data)
 
     @detail_route(methods=["post"], url_path="endpoints/discover")
     def discover_endpoints(self, request, pk=None):
-        import pdb
-        pdb.set_trace()
-        print request.data
-        print request.POST
+        response = []
+        for selected_range in json.loads(request.data.get("json", '[]')):
+            network_id = selected_range.get("network_id")
+            filters = {
+                "traffic_id": pk,
+                "network_id": network_id
+            }
+            obj = TrafficNetworksMap.objects.filter(**filters).get()
+            obj.ip_range_start = selected_range.get("ip_range_start")
+            obj.ip_range_end = selected_range.get("ip_range_end")
+            obj.save()
+
+            endpoint_discovery = DiscoverEndpoints(pk, network_id)
+            endpoints = endpoint_discovery.get_endpoints(obj.ip_range_start, obj.ip_range_end)
+            response.extend(endpoints)
+        serializer = EndpointSerializer(response, many=True)
+        return Response(serializer.data)
+
+    @detail_route(methods=["post"], url_path="endpoints/launch")
+    def launch_endpoints(self, request, pk=None):
+        response = []
+        traffic = Traffic.objects.get(pk=pk)
+        nova_client_utils = NovaClientUtils(**get_nova_credentials(traffic.cloud))
+
+        for selected_item in json.loads(request.data.get("json", '[]')):
+            filters = {
+                "traffic_id": pk,
+                "network_id": selected_item.get("network_id")
+            }
+            obj, created = TrafficNetworksMap.objects.get_or_create(**filters)
+            obj.endpoint_count = selected_item.get("endpoint_count")
+            obj.save()
+
+            network = Network.objects.get(pk=selected_item.get("network_id"))
+            endpoint_name = "-".join([network.tenant.tenant_name, network.network_name])
+            endpoints = nova_client_utils.launch_endpoint(network.tenant.tenant_id,
+                                                          network.network_id,
+                                                          endpoint_name,
+                                                          selected_item.get("endpoint_count"))
+            response.append(endpoints)
         return Response(True)
-
-    @detail_route(methods=["get"], url_path="vm/launch")
-    def launch_vm(self, request, pk=None):
-        traffic = None
-        try:
-            traffic = Traffic.objects.get(pk=pk)
-        except Cloud.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        nova = NovaClientUtils(**get_nova_credentials(traffic.cloud))
-        instances = []
-        for tenant in traffic.tenants.all():
-            for count, network in enumerate(tenant.networks.all()):
-                if not network.shared:
-                    vm_name = "-".join([network.network_name, "vm", str(count)])
-                    instance = nova.launch_vm(tenant.tenant_id,
-                                               network.network_id,
-                                               vm_name)
-                    instances.append(instance)
-        return Response(instances)
-
-    @detail_route(methods=["get"], url_path="test")
-    def test(self, request, pk=None):
-        return Response("hey")

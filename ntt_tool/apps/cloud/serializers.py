@@ -3,14 +3,12 @@ from models import *
 
 
 class CloudSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Cloud
         exclude = ('creator', 'updated_on')
 
 
 class SubnetSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Subnet
 
@@ -24,7 +22,6 @@ class NetworkSerializer(serializers.ModelSerializer):
 
 
 class RouterSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Router
         exclude = ('creator', 'created_on', 'updated_on',)
@@ -45,46 +42,41 @@ class TenantSerializer(serializers.ModelSerializer):
 
 
 class TrafficListSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Traffic
         exclude = ('creator', 'updated_on',)
 
 
 class TrafficSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Traffic
         exclude = ('creator', 'updated_on',)
+
+
+class TrafficNetworksMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrafficNetworksMap
+        fields = ("network", "ip_range_start", "ip_range_end", "endpoint_count")
 
 
 class TrafficRetrieveSerializer(serializers.ModelSerializer):
     tenants = TenantSerializer(many=True, required=False)
-    selected_network = NetworkSerializer(many=True, read_only=True)
+    selected_networks = serializers.SerializerMethodField()
 
     class Meta:
         model = Traffic
         exclude = ('creator', 'updated_on',)
 
-    # def create(self, validated_data):
-    #     # get tenants
-    #     tenants_data = validated_data.pop("tenants")
-    #     # create traffic instance
-    #     traffic = self.Meta.model.objects.create(**validated_data)
-    #     for tenant_id in tenants_data:
-    #         traffic.tenants.add(tenant_id)
-    #     traffic.save()
-    #     return traffic
-    #
-    # def update(self, instance, validated_data):
-    #     # get tenants
-    #     instance.tenants.clear()
-    #     tenants_data = validated_data.pop("tenants")
-    #     for tenant in tenants_data:
-    #         tenant_obj = Tenant.objects.filter(**tenant).get()
-    #         instance.tenants.add(tenant_obj)
-    #     instance.save()
-    #     return instance
+    def get_selected_networks(self, traffic):
+        objs = traffic.selected_networks.through.objects.filter(traffic=traffic)
+        serializer = TrafficNetworksMapSerializer(objs, many=True)
+        return serializer.data
 
 
+class EndpointSerializer(serializers.ModelSerializer):
+    network_id = serializers.IntegerField(source='network.id', read_only=True)
+    network_name = serializers.CharField(source="network.network_name", read_only=True)
 
+    class Meta:
+        model = Endpoint
+        fields = ('id', 'network_id', 'network_name', 'endpoint_id', 'name', 'status', 'ip_address')

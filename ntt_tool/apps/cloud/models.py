@@ -103,7 +103,7 @@ class Traffic(models.Model):
     iperf_duration = models.IntegerField()
     test_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='all')
     tenants = models.ManyToManyField(Tenant, blank=True)
-    selected_networks = models.ManyToManyField(Network, blank=True, through='TrafficNetworksMap')
+    selected_networks = models.ManyToManyField(Network, blank=True, through='TrafficNetworksMap', related_name="selected_networks")
     external_host = models.CharField(max_length=100, blank=True, null=True)
     ssh_gateway = models.CharField(max_length=100, blank=True, null=True)
     test_environment = models.CharField(max_length=20, choices=TEST_ENVIRONMENT_CHOICES, default='dev')
@@ -121,5 +121,22 @@ class Traffic(models.Model):
 class TrafficNetworksMap(models.Model):
     traffic = models.ForeignKey(Traffic, on_delete=models.CASCADE)
     network = models.ForeignKey(Network, on_delete=models.CASCADE)
-    ip_range_start = models.TextField(max_length=15)
-    ip_range_end = models.TextField(max_length=15)
+    ip_range_start = models.TextField(max_length=15, blank=True, null=True)
+    ip_range_end = models.TextField(max_length=15, blank=True, null=True)
+    endpoint_count = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = "cloud_traffic_networks_map"
+
+
+class Endpoint(models.Model):
+    traffic = models.ForeignKey(Traffic)
+    network = models.ForeignKey(Network)
+    endpoint_id = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    ip_address = models.CharField(max_length=30)
+    status = models.CharField(max_length=30)
+    is_dirty = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "cloud_traffic_endpoints"

@@ -27,10 +27,18 @@ nttApp.service('trafficService', function(dataService){
         return dataService.get('/api/traffic/' + pk + '/select/network/?'+$.param(params));
     };
 
+    this.endpoints = function(pk){
+        return dataService.get('/api/traffic/' + pk + '/endpoints/');
+    };
+
     this.discoverEndpoints = function(pk, params){
-        return dataService.postJSON('/api/traffic/' +pk + '/endpoints/discover/', $.param(params))
+        return dataService.postJSON('/api/traffic/' +pk + '/endpoints/discover/', params);
     };
 1
+    this.launchEndpoints = function(pk, params) {
+        return dataService.postJSON('/api/traffic/' +pk + '/endpoints/launch/', params);
+    };
+
     this.launchVM = function(pk){
         return dataService.get('/api/traffic/' + pk + '/vm/launch/');
     };

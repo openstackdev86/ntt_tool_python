@@ -54,6 +54,7 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
     trafficService.get($scope.id).then(function(response){
         $scope.traffic = response;
         $scope.getTenants();
+        $scope.getEndpoints();
     });
 
     $scope.isAnyNetworkSelected = false;
@@ -66,10 +67,19 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
                 if ($scope.traffic.tenants[0].tenant_id == tenant.tenant_id){
                     $scope.traffic.tenants[0] = tenant;
                     angular.forEach($scope.traffic.tenants[0].networks, function(network, j){
-                        if($scope.traffic.selected_networks.indexOf(network.id) != -1){
-                            network["is_selected"] = true;
-                            $scope.isAnyNetworkSelected = true;
-                        }
+                        angular.forEach($scope.traffic.selected_networks, function(selectedNetwork, k){
+                            if(selectedNetwork.network == network.id){
+                                network["is_selected"] = true;
+                                if($scope.traffic.test_environment == 'prod'){
+                                    network["endpoint_count"] = selectedNetwork.endpoint_count;
+                                }
+                                else{
+                                    network.subnets[0]["ip_range_start"] = selectedNetwork.ip_range_start;
+                                    network.subnets[0]["ip_range_end"] = selectedNetwork.ip_range_end;    
+                                }
+                                $scope.isAnyNetworkSelected = true;
+                            }
+                        });
                     });
                 }
             });
@@ -104,22 +114,50 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
         $scope.isAnyNetworkSelected = flag;
     }, true);
 
+    $scope.showLoadingEndpoints = false;
+    $scope.endpoints = [];
+    $scope.getEndpoints = function () {
+        trafficService.endpoints($scope.traffic.id).then(function(response){
+            $scope.endpoints = response;
+        });
+    };
     $scope.discoverEndpoints = function(){
+        $scope.showLoadingEndpoints = true;
+        $scope.endpoints = [];
         var selectedItems = [];
-        angular.forEach($scope.tenants[0].networks, function(network, i){
+        
+        angular.forEach($scope.traffic.tenants[0].networks, function(network, i){
+            console.log(network.is_selected)
             if(network.is_selected){
-                selectedItems.push({
-                    "network_id": network.id,
-                    "ip_range_start": network.subnets[0].ip_range_start,
-                    "ip_range_end": network.subnets[0].ip_range_end,
-                })
+                if($scope.traffic.test_environment == 'prod'){
+                    selectedItems.push({
+                        "network_id": network.id,
+                        "endpoint_count": network.endpoint_count
+                    })
+                }
+                else {
+                    selectedItems.push({
+                        "network_id": network.id,
+                        "ip_range_start": network.subnets[0].ip_range_start,
+                        "ip_range_end": network.subnets[0].ip_range_end,
+                    });
+                }
             }
         });
 
-        console.log(selectedItems)
-        trafficService.discoverEndpoints($scope.traffic.id, {"data":selectedItems}).then(function(response){
-            console.log(selectedItems);
-        });
+        if($scope.traffic.test_environment == "dev") {
+            trafficService.discoverEndpoints($scope.traffic.id, selectedItems).then(function (response) {
+                $scope.endpoints = response;
+                $scope.showLoadingEndpoints = false;
+        
+            });
+        }
+        else {
+            trafficService.launchEndpoints($scope.traffic.id, selectedItems).then(function (response) {
+                $scope.endpoints = response;
+                $scope.showLoadingEndpoints = false;
+            });
+        }
     };
 });
 

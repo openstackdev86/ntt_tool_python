@@ -5,7 +5,7 @@ nttApp.controller('TenantListCtrl', function($scope, $routeParams, tenantService
         $scope.tenants = response;
     });
 
-    $scope.showLoading = true;
+    $scope.showLoading = false;
     $scope.discover = function(){
         $scope.showLoading = true;
         tenantService.discover($scope.cloudId).then(function(response){

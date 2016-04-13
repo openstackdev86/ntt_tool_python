@@ -26,9 +26,23 @@ def get_nova_credentials(cloud):
         cloud = get_cloud_instance(cloud)
         credentials = {
             "username": cloud.keystone_user,
-            "password": cloud.keystone_password,
+            "api_key": cloud.keystone_password,
             "auth_url": cloud.keystone_auth_url,
             "project_id": cloud.keystone_tenant_name
+        }
+        return credentials
+    except Exception, e:
+        return {}
+
+
+def get_nova_credentials_v3(cloud):
+    try:
+        cloud = get_cloud_instance(cloud)
+        credentials = {
+            "username": cloud.keystone_user,
+            "password": cloud.keystone_password,
+            "auth_url": cloud.keystone_auth_url,
+            "project_id": cloud.keystone_tenant_name,
         }
         return credentials
     except Exception, e:

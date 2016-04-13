@@ -22,12 +22,12 @@ class NovaClientUtils(OpenStackClientUtils):
             return True
         return False
 
-    def launch_vm(self, tenant_id, network_id, vm_name):
+    def launch_endpoint(self, tenant_id, network_id, endpoint_name, min_count=1):
         """
         Launches VM on given tenant and network
         :param tenant_id:
         :param network_id:
-        :param vm_name:
+        :param endpoint_name:
         :return: VM instance
         """
         self.nova.quotas.update(tenant_id,
@@ -67,13 +67,20 @@ class NovaClientUtils(OpenStackClientUtils):
                                               ram=NOVA_VM_FLAVOR_RAM,
                                               vcpus=NOVA_VM_FLAVOR_VCPUS,
                                               disk=NOVA_VM_FLAVOR_DISK)
-        # Launching VM
-        instance = self.nova.servers.create(name=vm_name,
+
+        # Launching endpoints
+        instance = self.nova.servers.create(name=endpoint_name,
                                             image=image,
                                             flavor=flavor,
                                             key_name="admin",
                                             nics=[{'net-id': network_id}],
-                                            userdata=user_data)
+                                            userdata=user_data,
+                                            min_count=min_count)
+
+        # Todo: As of now nova does not returns all the instances which it launched. It is returning only first
+        # Todo: Refer openstack blueprint
+
+        print "instance --> ", instance
 
         # Waiting and querying instance till instance status becomes active
         while instance.status == 'BUILD':
@@ -84,7 +91,7 @@ class NovaClientUtils(OpenStackClientUtils):
         self.assign_floating_ip(instance)
 
         return {
-            "instance_name": vm_name,
+            "instance_name": endpoint_name,
             "instance_status": instance.status
         }
 
