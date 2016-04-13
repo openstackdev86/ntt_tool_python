@@ -11,7 +11,7 @@ from openstackscripts.keystoneclientutils import KeystoneClientUtils
 from openstackscripts.novaclientutils import NovaClientUtils
 from openstackscripts.tenantnetworkdiscovery import *
 from openstackscripts.credentials import *
-from openstackscripts.endpointdiscovery import DiscoverEndpoints
+from openstackscripts.endpoints import DiscoverEndpoints, LaunchEndpoints
 
 
 class CloudViewSet(viewsets.ModelViewSet):
@@ -182,7 +182,7 @@ class TrafficViewSet(viewsets.ModelViewSet):
     def launch_endpoints(self, request, pk=None):
         response = []
         traffic = Traffic.objects.get(pk=pk)
-        nova_client_utils = NovaClientUtils(**get_nova_credentials(traffic.cloud))
+        nova_credentials = get_nova_credentials(traffic.cloud)
 
         for selected_item in json.loads(request.data.get("json", '[]')):
             filters = {
@@ -193,11 +193,43 @@ class TrafficViewSet(viewsets.ModelViewSet):
             obj.endpoint_count = selected_item.get("endpoint_count")
             obj.save()
 
-            network = Network.objects.get(pk=selected_item.get("network_id"))
-            endpoint_name = "-".join([network.tenant.tenant_name, network.network_name])
-            endpoints = nova_client_utils.launch_endpoint(network.tenant.tenant_id,
-                                                          network.network_id,
-                                                          endpoint_name,
-                                                          selected_item.get("endpoint_count"))
-            response.append(endpoints)
-        return Response(True)
+            launch_endpoint = LaunchEndpoints(traffic, selected_item.get("network_id"), **nova_credentials)
+            endpoints = launch_endpoint.launch(selected_item.get("endpoint_count"))
+        response.extend(endpoints)
+        serializer = EndpointSerializer(response, many=True)
+        return Response(serializer.data)
+
+
+        nova_client_utils = NovaClientUtils(**get_nova_credentials(traffic.cloud))
+
+        # Endpoint.objects.filter(traffic_id=pk).update(is_dirty=False)
+        # with transaction.atomic():
+        #     for selected_item in json.loads(request.data.get("json", '[]')):
+        #
+        #
+        #         network = Network.objects.get(pk=selected_item.get("network_id"))
+        #         endpoint_name = "-".join([network.tenant.tenant_name, network.network_name])
+        #         endpoints = nova_client_utils.launch_endpoint(network.tenant.tenant_id,
+        #                                                     network.network_id,
+        #                                                     endpoint_name,
+        #                                                     selected_item.get("endpoint_count"))
+        #
+        #         for endpoint in endpoints:
+        #             filters = {
+        #                 "traffic_id": pk,
+        #                 "network_id": network.id,
+        #             }
+        #             endpoint_obj, created = Endpoint.objects.get_or_create(**filters)
+        #             if created:
+        #                 endpoint_obj.traffic_id = pk
+        #                 endpoint_obj.network_id = network.id
+        #             endpoint_obj.endpoint_id = endpoint.id
+        #             endpoint_obj.name = endpoint.name
+        #             endpoint_obj.ip_address = endpoint.addresses.get(network.network_name)[0].get("addr")
+        #             endpoint_obj.status = endpoint.status
+        #             endpoint_obj.is_dirty = True
+        #             endpoint_obj.save()
+        #             response.append(endpoint_obj)
+        #     Endpoint.objects.filter(traffic_id=pk).filter(is_dirty=False).delete()
+        # serializer = EndpointSerializer(response, many=True)
+        # return Response(serializer.data)

@@ -69,31 +69,29 @@ class NovaClientUtils(OpenStackClientUtils):
                                               disk=NOVA_VM_FLAVOR_DISK)
 
         # Launching endpoints
-        instance = self.nova.servers.create(name=endpoint_name,
-                                            image=image,
-                                            flavor=flavor,
-                                            key_name="admin",
-                                            nics=[{'net-id': network_id}],
-                                            userdata=user_data,
-                                            min_count=min_count)
+        first_instance = self.nova.servers.create(name=endpoint_name,
+                                                  image=image,
+                                                  flavor=flavor,
+                                                  key_name="admin",
+                                                  nics=[{'net-id': network_id}],
+                                                  userdata=user_data,
+                                                  min_count=min_count)
 
+        instances = []
         # Todo: As of now nova does not returns all the instances which it launched. It is returning only first
         # Todo: Refer openstack blueprint
+        if min_count > 1:
+            for endpoint_index in range(1, min_count+1):
+                instance_name = "%s-%d" % (first_instance.name.rsplit('-', 1)[0], endpoint_index)
+                instance = self.nova.servers.find(name=instance_name)
+                while instance.status == 'BUILD':
+                    time.sleep(5)
+                    instance = self.nova.servers.get(instance.id)
+                # Assigning floating IP to the instance
+                if self.assign_floating_ip(instance):
+                    instances.append(instance)
 
-        print "instance --> ", instance
-
-        # Waiting and querying instance till instance status becomes active
-        while instance.status == 'BUILD':
-            time.sleep(10)
-            instance = self.nova.servers.get(instance.id)
-
-        # Assigning floating IP to the instance
-        self.assign_floating_ip(instance)
-
-        return {
-            "instance_name": endpoint_name,
-            "instance_status": instance.status
-        }
+        return instances
 
 
 

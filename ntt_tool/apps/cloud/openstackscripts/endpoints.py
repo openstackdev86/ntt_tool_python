@@ -1,9 +1,10 @@
-from netaddr import IPAddress, IPRange
+from netaddr import IPRange
 from django.db import transaction
 from neutronclient.v2_0 import client as neutron_client
 from novaclient.v1_1 import client as nova_client
-from credentials import *
 from ntt_tool.apps.cloud.models import Network, Endpoint
+from credentials import *
+from novaclientutils import NovaClientUtils
 
 
 class DiscoverEndpoints(object):
@@ -31,11 +32,9 @@ class DiscoverEndpoints(object):
                                 filters = {
                                     "traffic_id": self.traffic_id,
                                     "network_id": self.network.id,
+                                    "endpoint_id": endpoint.id
                                 }
                                 endpoint_obj, created = Endpoint.objects.get_or_create(**filters)
-                                if created:
-                                    endpoint_obj.traffic_id = self.traffic_id
-                                    endpoint_obj.network_id = self.network.id
                                 endpoint_obj.endpoint_id = endpoint.id
                                 endpoint_obj.name = endpoint.name
                                 endpoint_obj.ip_address = ip_address
@@ -47,3 +46,36 @@ class DiscoverEndpoints(object):
         return endpoints
 
 
+class LaunchEndpoints(NovaClientUtils):
+
+    def __init__(self, traffic, network_id, **credentials):
+        super(LaunchEndpoints, self).__init__(**credentials)
+        self.traffic = traffic
+        self.network = Network.objects.get(pk=network_id)
+
+    def launch(self, endpoint_count=1):
+        endpoints = []
+        endpoint_name = "-".join([self.network.tenant.tenant_name, self.network.network_name])
+        launched_endpoints = self.launch_endpoint(self.network.tenant.tenant_id,
+                                                 self.network.network_id,
+                                                 endpoint_name,
+                                                 endpoint_count)
+
+        with transaction.atomic():
+            filters = {
+                "traffic_id": self.traffic.id,
+                "network_id": self.network.id,
+            }
+            Endpoint.objects.filter(**filters).update(is_dirty=False)
+            for endpoint in launched_endpoints:
+                endpoint_obj, created = Endpoint.objects.get_or_create(traffic_id=self.traffic.id,
+                                                                       network_id=self.network.id,
+                                                                       endpoint_id=endpoint.id)
+                endpoint_obj.name = endpoint.name
+                endpoint_obj.ip_address = endpoint.addresses.get(self.network.network_name)[0].get("addr")
+                endpoint_obj.status = endpoint.status
+                endpoint_obj.is_dirty = True
+                endpoint_obj.save()
+                endpoints.append(endpoint_obj)
+            Endpoint.objects.filter(**filters).filter(is_dirty=False).delete()
+        return endpoints
