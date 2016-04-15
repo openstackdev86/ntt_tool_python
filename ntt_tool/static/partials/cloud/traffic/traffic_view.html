@@ -80,10 +80,45 @@
     <!-- traffic test panel -->
     <div class="row">
         <div class="col-md-12">
-            <div class="page-header">
-                <button type="button" ng-click="runTrafficTest(traffic.id)" class="btn btn-danger btn-sm pull-right">Run Traffic Test</button>
-                <h1>Traffic Test</h1>
+
+            <div>
+                <div class="page-header">
+                    <button type="button" ng-click="runTrafficTest(traffic.id)" class="btn btn-danger btn-sm pull-right">Run Traffic Test</button>
+                    <h1>Traffic Test</h1>
+                </div>
             </div>
+
+            <table class="table table-bordered table-stripped bg-white" ng-show="testResults.length > 0">
+                <tr>
+                    <th>Test Id</th>
+                    <th>Test started on</th>
+                    <th>Test completed on</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                <tr ng-repeat="testResult in testResults">
+                    <td>{$ testResult.id $}</td>
+                    <td>{$ testResult.stared_on $}</td>
+                    <td>{$ testResult.completed_on $}</td>
+                    <td>
+                        <div ng-show="testResult.status == 'inprogress'">
+                            <div class="progress no-margin-bottom">
+                              <div class="progress-bar progress-bar-striped active"
+                                   role="progressbar"
+                                   aria-valuenow="50"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100"
+                                   style="width:100%">
+                                In Progress
+                              </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+
+            <p ng-hide="testResults.length > 0">No data found.</p>
         </div>
     </div>
     <!-- end: traffic test panel -->

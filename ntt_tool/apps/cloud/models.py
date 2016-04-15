@@ -141,3 +141,8 @@ class Endpoint(models.Model):
 
     class Meta:
         db_table = "cloud_traffic_endpoints"
+
+
+class TrafficTest(models.Model):
+    traffic = models.ForeignKey(Traffic)
+    started_on = models.DateTimeField()

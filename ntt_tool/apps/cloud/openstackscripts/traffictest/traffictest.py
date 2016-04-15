@@ -1,5 +1,5 @@
 import time
-from ntt_tool.apps.cloud.models import Traffic
+from ntt_tool.apps.cloud.models import Traffic, Endpoint
 from utils import *
 from ntt_tool.apps.cloud.openstackscripts.traffictest.libs import traf_tester
 
@@ -9,31 +9,63 @@ class TrafficTest(object):
     def __init__(self, traffic_id):
         self.traffic = Traffic.objects.get(pk=traffic_id)
 
-    def run_test(self):
+    def run_test(self, traffic_test_duration=1):
         endpoints_list = self.generate_endpoints_contract_list()
         setup_config = self.generate_setup_config()
-        traf_tester.start_task(setup_config, endpoints_list, 'start', "devtest")
-        time.sleep(60)
-        traf_tester.start_task(setup_config, endpoints_list, 'stop', "devtest")
+        traf_tester.start_task(setup_config, endpoints_list, "start", "_".join(self.traffic.name.split()))
+        time.sleep(60 * traffic_test_duration)
+        traf_tester.start_task(setup_config, endpoints_list, "stop", "_".join(self.traffic.name.split()))
+        return True
 
     def stop_test(self):
         pass
 
     def generate_endpoints_contract_list(self):
-        endpoint_configs = []
+        endpoint_contract_configs = []
         if self.traffic.test_type == 'intra-tenant':
-            config = {
-                'contract': [],
-                'test_type': self.traffic.test_type,
-                'src_tenant': [x.tenant_name for x in self.traffic.tenants.all()],
-                'dest_eps': ['3.3.3.3'],
-                'src_eps': ['2.2.2.9', '2.2.2.10']
-            }
-            for test_method in self.traffic.test_method.split(','):
-                config.get('contract').append(test_method_contracts(test_method))
-            config['dest_tenant'] = config['src_tenant']
-            endpoint_configs.append(config)
-        return endpoint_configs
+            subnet_endpoints_map = {}
+            endpoints = Endpoint.objects.filter(traffic_id=self.traffic.id).filter(is_selected=True)
+            for endpoint in endpoints:
+                subnet = endpoint.network.subnets.first()
+                if subnet.subnet_name not in subnet_endpoints_map:
+                    subnet_endpoints_map[subnet.subnet_name] = {
+                        'endpoints': [],
+                        'id': subnet.subnet_id,
+                        'name': subnet.subnet_name
+                    }
+                subnet_endpoints_map[subnet.subnet_name]['endpoints'].append(endpoint.ip_address)
+
+            net = {}
+            for entry in subnet_endpoints_map.values():
+                tsrc = []
+                tdest = []
+                tsrc.append(entry['endpoints'])
+                for nextep in subnet_endpoints_map.values():
+                    if entry['name'] != nextep['name']:
+                        tdest.append(nextep['endpoints'])
+                        subnet_data = {
+                            'src_eps': [ep for eps in tsrc for ep in eps],
+                            'dest_eps': [ep for eps in tdest for ep in eps]
+                        }
+                        net[entry['name']] = subnet_data
+
+            for k, src_dst_eps in net.iteritems():
+                config = {
+                    'contract': [],
+                    'test_type': self.traffic.test_type,
+                    'src_tenant': [x.tenant_name for x in self.traffic.tenants.all()],
+                    'dest_eps': src_dst_eps.get('dest_eps'),
+                    'src_eps': src_dst_eps.get('src_eps')
+                }
+                for test_method in self.traffic.test_method.split(','):
+                    config.get('contract').append(test_method_contracts(test_method))
+                config['dest_tenant'] = config['src_tenant']
+                endpoint_contract_configs.append(config)
+
+        print "*"*200
+        print endpoint_contract_configs
+        print "\n\n\n\n"
+        return endpoint_contract_configs
 
     def generate_setup_config(self):
         setup_config = {}

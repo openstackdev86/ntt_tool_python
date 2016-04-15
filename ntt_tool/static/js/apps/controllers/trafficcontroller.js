@@ -173,9 +173,20 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
     };
 
 
+
+    $scope.testResults = [];
+    $scope.getTestResults = function () {
+
+    };
     $scope.runTrafficTest = function (trafficId) {
+        // $scope.testResults.push({
+        //     "id": "TEST1",
+        //     "stared_on":"29-12-16 23:55:55",
+        //     "completed_on":"29-12-16 23:55:55",
+        //     "status": "inprogress",
+        // });
         trafficService.runTrafficTest(trafficId).then(function (response) {
-            console.log(response)
+            testResults.push(response);
         });
-    }
+    };
 });

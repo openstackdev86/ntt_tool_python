@@ -79,6 +79,10 @@ td > a{
     border: none !important;
 }
 
+.no-margin-bottom {
+    margin-bottom: 0;
+}
+
 .mb0 {
     margin-bottom: 0;
 }
@@ -165,3 +169,4 @@ td > a{
     max-height: calc(100vh - 210px);
     overflow-y: auto;
 }
+
