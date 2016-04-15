@@ -71,11 +71,6 @@ nttApp.config(['$routeProvider', function($routeProvider){
         controller: 'TrafficViewCtrl',
         templateUrl: '/static/partials/cloud/traffic/traffic_view.html'
     });
-
-    $routeProvider.when('/cloud/traffic/test/:cloudId/:id/', {
-        controller: 'TrafficTestCtrl',
-        templateUrl: '/static/partials/cloud/traffic/traffic_test.html'
-    });
 }]);
 
 

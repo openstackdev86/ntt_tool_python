@@ -1,0 +1,22 @@
+[
+{"contract": [{"action": "allow",
+                "direction": "in",
+                "name": "allow_icmp",
+                "port": "None",
+                "protocol": "icmp"},
+               {"action": "allow",
+                "direction": "in",
+                "name": "allow_ssh",
+                "port": "22",
+                "protocol": "tcp"},
+               {"action": "allow",
+                "direction": "in",
+                "name": "allow_udp",
+                "port": "None",
+                "protocol": "udp"}],
+  "dest_eps": ["2.2.2.3"],
+  "dest_tenant": "admin",
+  "src_eps": ["3.3.3.3","1.1.1.5"],
+  "src_tenant": "admin",
+  "test_type": "intra-tenant"
+  }]

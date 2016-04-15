@@ -159,20 +159,23 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
             });
         }
     };
-});
+
+    $scope.selectEndpoint = function($index) {
+        var endpoint = $scope.endpoints[$index];
+        var params = {
+            "endpoint_pk": endpoint.id,
+            "endpoint_id": endpoint.endpoint_id,
+            "is_selected": endpoint.is_selected
+        };
+        trafficService.selectEndpoint($scope.traffic.id, params).then(function (response) {
+            $scope.endpoints[$index] = response;
+        });
+    };
 
 
-nttApp.controller('TrafficTestCtrl', function ($scope, $routeParams, trafficService) {
-    $scope.id = $routeParams.id;
-    $scope.cloudId = $routeParams.cloudId;
-    $scope.showLoading = true;
-    $scope.testResult = {};
-    $scope.vmLaunchStatus = [];
-
-    $scope.status = "Launching VM(s) on selected networks";
-    trafficService.launchVM($scope.id).then(function(response){
-        $scope.status = "Successfully launched VM(s) on selected networks"
-        $scope.showLoading = false;
-        $scope.vmLaunchStatus = response;
-    });
+    $scope.runTrafficTest = function (trafficId) {
+        trafficService.runTrafficTest(trafficId).then(function (response) {
+            console.log(response)
+        });
+    }
 });

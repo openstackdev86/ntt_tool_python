@@ -79,4 +79,4 @@ class EndpointSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Endpoint
-        fields = ('id', 'network_id', 'network_name', 'endpoint_id', 'name', 'status', 'ip_address')
+        fields = ('id', 'network_id', 'network_name', 'endpoint_id', 'name', 'status', 'ip_address', 'is_selected')

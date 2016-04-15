@@ -12,6 +12,7 @@ from openstackscripts.novaclientutils import NovaClientUtils
 from openstackscripts.tenantnetworkdiscovery import *
 from openstackscripts.credentials import *
 from openstackscripts.endpoints import DiscoverEndpoints, LaunchEndpoints
+from openstackscripts.traffictest.traffictest import TrafficTest
 
 
 class CloudViewSet(viewsets.ModelViewSet):
@@ -161,8 +162,10 @@ class TrafficViewSet(viewsets.ModelViewSet):
     @detail_route(methods=["post"], url_path="endpoints/discover")
     def discover_endpoints(self, request, pk=None):
         response = []
+        selected_networks = []
         for selected_range in json.loads(request.data.get("json", '[]')):
             network_id = selected_range.get("network_id")
+            selected_networks.append(network_id)
             filters = {
                 "traffic_id": pk,
                 "network_id": network_id
@@ -175,6 +178,10 @@ class TrafficViewSet(viewsets.ModelViewSet):
             endpoint_discovery = DiscoverEndpoints(pk, network_id)
             endpoints = endpoint_discovery.get_endpoints(obj.ip_range_start, obj.ip_range_end)
             response.extend(endpoints)
+
+        # Deleting endpoints for unselected networks (If selected previously and unselected in current request)
+        Endpoint.objects.filter(traffic_id=pk).exclude(network_id__in=selected_networks).delete()
+
         serializer = EndpointSerializer(response, many=True)
         return Response(serializer.data)
 
@@ -184,52 +191,43 @@ class TrafficViewSet(viewsets.ModelViewSet):
         traffic = Traffic.objects.get(pk=pk)
         nova_credentials = get_nova_credentials(traffic.cloud)
 
+        selected_networks = []
         for selected_item in json.loads(request.data.get("json", '[]')):
+            network_id = selected_item.get("network_id")
+            selected_networks.append(network_id)
             filters = {
                 "traffic_id": pk,
-                "network_id": selected_item.get("network_id")
+                "network_id": network_id
             }
             obj, created = TrafficNetworksMap.objects.get_or_create(**filters)
             obj.endpoint_count = selected_item.get("endpoint_count")
             obj.save()
 
-            launch_endpoint = LaunchEndpoints(traffic, selected_item.get("network_id"), **nova_credentials)
+            launch_endpoint = LaunchEndpoints(traffic, network_id, **nova_credentials)
             endpoints = launch_endpoint.launch(selected_item.get("endpoint_count"))
-        response.extend(endpoints)
+            response.extend(endpoints)
+
+        # Deleting endpoints for unselected networks (If selected previously and unselected in current request)
+        Endpoint.objects.filter(traffic_id=pk).exclude(network_id__in=selected_networks).delete()
+
         serializer = EndpointSerializer(response, many=True)
         return Response(serializer.data)
 
+    @detail_route(methods=["get"], url_path="endpoints/select")
+    def select_endpoint(self, request, pk=None):
+        filters = {
+            "traffic_id": pk,
+            "endpoint_id": request.GET.get("endpoint_id")
+        }
+        endpoint = Endpoint.objects.filter(**filters).get(pk=request.GET.get("endpoint_pk"))
+        endpoint.is_selected = json.loads(request.GET.get("is_selected"))
+        endpoint.save()
 
-        nova_client_utils = NovaClientUtils(**get_nova_credentials(traffic.cloud))
+        serializer = EndpointSerializer(endpoint)
+        return Response(serializer.data)
 
-        # Endpoint.objects.filter(traffic_id=pk).update(is_dirty=False)
-        # with transaction.atomic():
-        #     for selected_item in json.loads(request.data.get("json", '[]')):
-        #
-        #
-        #         network = Network.objects.get(pk=selected_item.get("network_id"))
-        #         endpoint_name = "-".join([network.tenant.tenant_name, network.network_name])
-        #         endpoints = nova_client_utils.launch_endpoint(network.tenant.tenant_id,
-        #                                                     network.network_id,
-        #                                                     endpoint_name,
-        #                                                     selected_item.get("endpoint_count"))
-        #
-        #         for endpoint in endpoints:
-        #             filters = {
-        #                 "traffic_id": pk,
-        #                 "network_id": network.id,
-        #             }
-        #             endpoint_obj, created = Endpoint.objects.get_or_create(**filters)
-        #             if created:
-        #                 endpoint_obj.traffic_id = pk
-        #                 endpoint_obj.network_id = network.id
-        #             endpoint_obj.endpoint_id = endpoint.id
-        #             endpoint_obj.name = endpoint.name
-        #             endpoint_obj.ip_address = endpoint.addresses.get(network.network_name)[0].get("addr")
-        #             endpoint_obj.status = endpoint.status
-        #             endpoint_obj.is_dirty = True
-        #             endpoint_obj.save()
-        #             response.append(endpoint_obj)
-        #     Endpoint.objects.filter(traffic_id=pk).filter(is_dirty=False).delete()
-        # serializer = EndpointSerializer(response, many=True)
-        # return Response(serializer.data)
+    @detail_route(methods=["get"], url_path="run/test")
+    def run_traffic_test(self, request, pk=None):
+        traffic_test = TrafficTest(pk)
+        test_result = traffic_test.run_test()
+        return Response(test_result)

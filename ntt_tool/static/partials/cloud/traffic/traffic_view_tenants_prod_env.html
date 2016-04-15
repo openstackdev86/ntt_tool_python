@@ -108,7 +108,13 @@
                                         <th>status</th>
                                     </tr>
                                     <tr ng-repeat="ep in endpoints">
-                                        <td class="text-center"><input type="checkbox"></td>
+                                        <td class="text-center">
+                                            <input type="checkbox"
+                                                ng-model="ep.is_selected"
+                                                ng-true-value="true"
+                                                ng-false-value="false"
+                                                ng-change="selectEndpoint($index)" />
+                                        </td>
                                         <td>{$ ep.network_name $}</td>
                                         <td>{$ ep.name $}</td>
                                         <td>{$ ep.ip_address $}</td>

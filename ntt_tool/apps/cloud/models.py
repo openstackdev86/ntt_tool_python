@@ -136,6 +136,7 @@ class Endpoint(models.Model):
     name = models.CharField(max_length=100)
     ip_address = models.CharField(max_length=30)
     status = models.CharField(max_length=30)
+    is_selected = models.BooleanField(default=False)
     is_dirty = models.BooleanField(default=False)
 
     class Meta:

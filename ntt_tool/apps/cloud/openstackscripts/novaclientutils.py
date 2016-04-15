@@ -75,7 +75,8 @@ class NovaClientUtils(OpenStackClientUtils):
                                                   key_name="admin",
                                                   nics=[{'net-id': network_id}],
                                                   userdata=user_data,
-                                                  min_count=min_count)
+                                                  min_count=min_count,
+                                                  availability_zone="compute:openstack-aio")
 
         instances = []
         # Todo: As of now nova does not returns all the instances which it launched. It is returning only first
