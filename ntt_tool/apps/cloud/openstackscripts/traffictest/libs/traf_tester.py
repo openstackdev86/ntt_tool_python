@@ -1,21 +1,19 @@
-import fabric
-from fabric.api import *
-import os
-import sys
-import logging
-import time
-import re
-import pdb
-from multiprocessing import Pool, Process, Queue
-from prettytable import PrettyTable
 import json
+import logging
+import os
+import re
+import time
+
+import fabtools
+
 from itertools import *
 from operator import *
-from django.conf import settings
 
-path = os.getcwd() + '/scripts'
-os.path.join(path)
+from fabric.api import *
+from prettytable import PrettyTable
 
+
+traffic_test_script_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts')
 test_results_path = '~/dp_test_results'
 
 logger = logging.getLogger(__name__)
@@ -65,45 +63,39 @@ def install_hping(environment):
 
 def install_iperf(environment):
     try:
-        out = run("python -c 'import platform;"
-                  " print platform.linux_distribution()[0]'")
-        os_info = out
-        logger.debug("Host %s runs %s" % (env.host_string, os_info))
-        if out.return_code == 0:
-            if os_info in ['CentOS',
-                           'Red Hat Enterprise Linux Server',
-                           'Fedora']:
-                out = sudo("yum -y install iperf3")
-                if out.return_code == 0:
-                    logger.info("Installed iperf3 on %s" % (env.host_string))
-            elif os_info in ['Ubuntu','LinuxMint']:
-                out = sudo("apt-get -y install iperf3")
-                if out.return_code == 0:
-                    logger.info("Installed iperf3 on %s" % (env.host_string))
-        out = run("mkdir %s" % (test_results_path))
+        # out = run("python -c 'import platform;"
+        #           " print platform.linux_distribution()[0]'")
+        # os_info = out
+
+        os_distribution_id = fabtools.system.distrib_id()
+        logger.debug("Host %s runs %s" % (env.host_string, os_distribution_id))
+        # if out.return_code == 0:
+        if os_distribution_id in ['CentOS','Red Hat Enterprise Linux Server', 'Fedora']:
+            out = sudo("yum -y install iperf3")
+            if out.return_code == 0:
+                logger.info("Installed iperf3 on %s" % (env.host_string))
+        elif os_distribution_id in ['Ubuntu','LinuxMint']:
+            if not fabtools.deb.is_installed("iperf3"):
+                fabtools.deb.update_index()
+                fabtools.deb.install("iperf3")
+                # run("sudo apt-get update -y")
+                # out = sudo("apt-get -y install iperf3")
+                # if out.return_code == 0:
+                #     logger.info("Installed iperf3 on %s" % (env.host_string))
+        run("mkdir %s" % (test_results_path))
     except SystemExit, e:
         logger.warn("Exception while executing task: %s", str(e))
 
 
-
 def setup_iperf_env(config, src_tenant, dest_tenant, endpoints, test_type):
-    endpoints = endpoints
-    test_results_path = config['traffic']['test_results_path']
-    test_method = config['traffic']['test_method']
-    delta = config['traffic']['allowed_delta_percentage']
     env.hosts = endpoints
-    env.user = config['traffic']['remote_user']
-    env.password = config['traffic']['remote_pass']
+    env.user = config.get('traffic', {}).get('remote_user')
+    env.password = config.get('traffic', {}).get('remote_pass')
     env.skip_bad_hosts = True
-    # env.gateway = config['traffic']['ssh_gateway']
     if test_type != 'north-south':
-        env.gateway = config['tenant_ssh_gateway'][src_tenant]
+        env.gateway = config.get('tenant_ssh_gateway', {}).get(src_tenant[0])
     else:
-        env.gateway = config['tenant_ssh_gateway'][dest_tenant]
-    logger.info("Initailized the environment with Endpoints")
-    logger.info("test_results_path : %s" % (test_results_path))
-    logger.info("test_method : %s" % (test_method))
-    logger.info("traffic allowed delta : %s" % (delta))
+        env.gateway = config.get('tenant_ssh_gateway', {}).get(dest_tenant[0])
 
 
 def pretty_table_content(config, data):
@@ -359,11 +351,7 @@ def stop_traffic(environment, endpoints, timestamp):
             logger.warn("Exception while executing task: %s", str(e))
         
         print "dest_eps are.....", endpoints['dest_eps']
-
-        traffictest_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        scripts_dir = os.path.join(traffictest_dir, 'scripts')
-
-        put(os.path.join(scripts_dir, "get_ping_statistics.py"), "get_ping_statistics.py")
+        put(os.path.join(traffic_test_script_dir, "get_ping_statistics.py"), "get_ping_statistics.py")
         out = run("python get_ping_statistics.py %s" % (timestamp))
 
         out_dict = json.JSONDecoder().decode(out)
@@ -405,14 +393,14 @@ def stop_iperf_traffic(environment, traffic_type, server, dest_ep, src_tenant, d
             print "client endpoint is.....", dest_ep
 
             if traffic_type == 'tcp':
-                put("scripts/get_iperf_tcp_statistics.py", "get_iperf_tcp_statistics.py")
+                put(os.path.join(traffic_test_script_dir, "get_iperf_tcp_statistics.py"), "get_iperf_tcp_statistics.py")
                 out = run("python get_iperf_tcp_statistics.py %s-%s-%s" %
                           (dest_ep.replace('.', '_'),
                            server.replace('.', '_'),
                            timestamp))
 
             if traffic_type == 'udp':
-                put("scripts/get_iperf_udp_statistics.py", "get_iperf_udp_statistics.py")
+                put(os.path.join(traffic_test_script_dir, "get_iperf_udp_statistics.py"), "get_iperf_udp_statistics.py")
                 out = run("python get_iperf_udp_statistics.py %s-%s-%s" %
                           (dest_ep.replace('.', '_'),
                            server.replace('.', '_'),

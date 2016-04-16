@@ -21,17 +21,33 @@ nttApp.controller('TrafficCtrl', function($scope, $routeParams, $location, traff
     $scope.traffic = {
         "cloud_id": $scope.cloudId,
         "test_type": "intra-tenant",
-        "test_method": "icmp",
         "test_environment": "dev",
     };
 
     if ($scope.event == "edit"){
         trafficService.get($scope.id).then(function(response){
             $scope.traffic = response;
+            var testMethods = {
+                icmp: false,
+                tcp: false,
+                udp: false
+            };
+            angular.forEach(response.test_method.split(","), function (testMethod, i) {
+                testMethods[testMethod] = true;
+            });
+            $scope.traffic["test_method"] = testMethods;
         });
     }
 
     $scope.save = function(){
+        var selectedTestMethods = [];
+        angular.forEach($scope.traffic.test_method, function (isSelected, testMethod) {
+            if(isSelected){
+                selectedTestMethods.push(testMethod)
+            }
+        });
+        $scope.traffic["test_method"] = selectedTestMethods.join();
+
         if($scope.event == "add") {
             trafficService.create($scope.traffic).then(function (response) {
                 $location.path("cloud/traffic/view/" + $scope.cloudId + "/" + response.id + "/");
@@ -51,7 +67,7 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
     $scope.id = $routeParams.id;
     $scope.traffic = {};
 
-    trafficService.get($scope.id).then(function(response){
+    trafficService.getWithRelatedData($scope.id).then(function(response){
         $scope.traffic = response;
         $scope.getTenants();
         $scope.getEndpoints();

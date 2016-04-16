@@ -89,12 +89,18 @@ class TrafficViewSet(viewsets.ModelViewSet):
     }
 
     def get_serializer_class(self):
+        """
+        Overriding method to get custom serializer classes based on request method.
+        """
         if hasattr(self, 'action_serializers'):
             if self.action in self.action_serializers:
                 return self.action_serializers[self.action]
         return super(TrafficViewSet, self).get_serializer_class()
 
     def list(self, request, *args, **kwargs):
+        """
+        Overriding list method to write custom queryset for retriveing traffic related to cloud.
+        """
         cloud_id = self.request.GET.get("cloud_id")
         queryset = self.filter_queryset(
                 Traffic.objects.filter(cloud_id=cloud_id))
@@ -107,7 +113,21 @@ class TrafficViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Overriding method to retriveing only traffic info for edit and get related info for view traffic.
+        """
+        instance = self.get_object()
+        if json.loads(request.GET.get('get_related_data', 'false')):
+            serializer = self.get_serializer(instance)
+        else:
+            serializer = TrafficSerializer(instance)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
+        """
+        Overriding method to provide selected tenants, creator and cloud_id at the time of creating traffic.
+        """
         serializer.save(
             tenants=self.request.data.getlist("tenants[]"),
             creator=self.request.user,
@@ -116,6 +136,9 @@ class TrafficViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=["get"], url_path="select/tenant/(?P<tenant_id>[-\w]+)")
     def select_tenant(self, request, pk=None, tenant_id=None):
+        """
+        Method provides the functionality to select a tenant for traffic.
+        """
         with transaction.atomic():
             tenant = Tenant.objects.filter(tenant_id=tenant_id).get()
 
@@ -131,6 +154,9 @@ class TrafficViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=["get"], url_path="select/network")
     def select_network(self, request, pk=None):
+        """
+        Method to select networks for a selected tenant of a traffic.
+        """
         with transaction.atomic():
             traffic = Traffic.objects.get(pk=pk)
             if json.loads(request.GET.get("is_selected")):
@@ -155,12 +181,18 @@ class TrafficViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=["get"], url_path="endpoints")
     def endpoints(self, request, pk=None):
+        """
+        Lists all the endpoints belongs to a specific network of a traffic.
+        """
         endpoints = Endpoint.objects.filter(traffic_id=pk)
         serializer = EndpointSerializer(endpoints, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=["post"], url_path="endpoints/discover")
     def discover_endpoints(self, request, pk=None):
+        """
+        Discovers the endpoints from openstack environment for selected networks with given IP range of a traffic.
+        """
         response = []
         selected_networks = []
         for selected_range in json.loads(request.data.get("json", '[]')):

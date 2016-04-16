@@ -7,6 +7,10 @@ nttApp.service('trafficService', function(dataService){
         return dataService.get('/api/traffic/' + pk + '/');
     };
 
+    this.getWithRelatedData = function(pk) {
+        return dataService.get('/api/traffic/' + pk + '/?get_related_data=true');
+    };
+    
     this.create = function(params){
         return dataService.post('/api/traffic/', params);
     };
