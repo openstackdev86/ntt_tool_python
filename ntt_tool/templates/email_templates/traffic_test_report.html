@@ -1,0 +1,266 @@
+<style type="text/css">
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
+    html { -webkit-text-size-adjust:none; -ms-text-size-adjust: none;}
+    @media only screen and (max-device-width: 680px), only screen and (max-width: 680px) {
+        *[class="table_width_100"] {
+            width: 96% !important;
+            background-color: red;
+        }
+        *[class="border-right_mob"] {
+            border-right: 1px solid #dddddd;
+        }
+        *[class="mob_100"] {
+            width: 100% !important;
+        }
+        *[class="mob_center"] {
+            text-align: center !important;
+        }
+        *[class="mob_center_bl"] {
+            float: none !important;
+            display: block !important;
+            margin: 0px auto;
+        }
+        .iage_footer a {
+            text-decoration: none;
+            color: #929ca8;
+        }
+        img.mob_display_none {
+            width: 0px !important;
+            height: 0px !important;
+            display: none !important;
+        }
+        img.mob_width_50 {
+            width: 40% !important;
+            height: auto !important;
+        }
+    }
+    .table_width_100 {
+        width: 680px;
+    }
+</style>
+
+
+
+<h4 id="mailsub" class="notification" align="center">
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="min-width: 320px;"><tr><td align="center" bgcolor="#eff3f8">
+
+<!--[if gte mso 10]>
+<table width="680" border="0" cellspacing="0" cellpadding="0"><tr><td>
+<![endif]-->
+
+<table border="0" cellspacing="0" cellpadding="0" class="table_width_100" width="100%" style="max-width: 680px; min-width: 300px; padding: 10px">
+    <tr>
+        <td>
+	    <!-- padding --><div style="height: 80px; line-height: 80px; font-size: 10px;"> </div>
+	    </td>
+    </tr>
+	<!--header -->
+	<tr>
+        <td align="center" bgcolor="#ffffff">
+		<!-- padding --><div style="height: 20px; line-height: 20px; font-size: 10px;"> </div>
+		<table width="90%" border="0" cellspacing="0" cellpadding="0">
+			<tr><td align="left"><!--
+
+				Item --><div class="mob_center_bl" style="float: left; display: inline-block; width: 115px;">
+					<table class="mob_center" width="115" border="0" cellspacing="0" cellpadding="0" align="left" style="border-collapse: collapse;">
+						<tr><td align="left" valign="middle">
+							<!-- padding --><div style="height: 20px; line-height: 20px; font-size: 10px;"> </div>
+							<table width="115" border="0" cellspacing="0" cellpadding="0" >
+								<tr><td align="left" valign="top" class="mob_center">
+									<a href="#" target="_blank" style="color: #596167; font-family: Arial, Helvetica, sans-serif; font-size: 13px;">
+									<font face="Arial, Helvetica, sans-seri; font-size: 13px;" size="3" color="#596167">
+									<img src="http://1-cloud.net/wp-content/uploads/2014/12/ext-e1423455969481.jpg" width="115" height="60" alt="OneCloud Consulting" border="0" style="display: block;" /></font></a>
+								</td></tr>
+							</table>
+						</td></tr>
+					</table></div><!-- Item END--><!--[if gte mso 10]>
+					</td>
+					<td align="right">
+				</td>
+			</tr>
+		</table>
+		<!-- padding --><div style="height: 50px; line-height: 50px; font-size: 10px;"> </div>
+	</td></tr>
+	<!--header END-->
+
+	<!--content 1 -->
+	<tr><td align="center" bgcolor="#fbfcfd">
+		<table width="90%" border="0" cellspacing="0" cellpadding="0">
+			<tr><td align="center">
+				<!-- padding --><div style="height: 30px; line-height: 30px; font-size: 10px;"> </div>
+				<div style="line-height: 24px;">
+					<font face="Arial, Helvetica, sans-serif" size="5" color="#57697e" style="font-size: 34px;">
+					<span style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; color: #57697e;">
+						Traffic Test Report
+					</span></font>
+				</div>
+				<!-- padding --><div style="height: 40px; line-height: 40px; font-size: 10px;"> </div>
+			</td></tr>
+		</table>
+	</td></tr>
+	<!--content 1 END-->
+
+	<!--content 2 -->
+	<tr>
+        <td align="center" bgcolor="#ffffff" style="border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #eff2f4;">
+
+            <div style="padding: 10px; text-align: left">
+                <h4>UDP Test Result</h4>
+                <table border="1">
+                    <tr>
+                        <th>Source Tenant</th>
+                        <th>Source Endpoint</th>
+                        <th>Destination Tenant</th>
+                        <th>Destination Endpoint</th>
+                        <th>Interval Time</th>
+                        <th>Transferred</th>
+                        <th>Bandwidth</th>
+                        <th>Jitter</th>
+                        <th>Loss Datagram</th>
+                        <th>Total Datagram</th>
+                        <th>Loss %</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for res in test_result.udp %}
+                    <tr>
+                        <td>{{ res.src_tenant.0 }}</td>
+                        <td>{{ res.src_ep }}</td>
+                        <td>{{ res.dest_tenant.0 }}</td>
+                        <td>{{ res.dest_ep }}</td>
+                        <td>{{ res.interval_time }}</td>
+                        <td>{{ res.transferred }}</td>
+                        <td>{{ res.bandwidth }}</td>
+                        <td>{{ res.jitter }}</td>
+                        <td>{{ res.loss_datagram }}</td>
+                        <td>{{ res.total_datagram }}</td>
+                        <td>{{ res.bandwidth_loss_percent }}</td>
+                        <td>{{ res.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </td>
+    </tr>
+        
+    <tr>
+        <td>
+            <div style="padding: 10px; text-align: left">
+                <h4>TCP Traffic Test Result</h4>
+                <table border="1">
+                    <tr>
+                        <th>Source Tenant</th>
+                        <th>Source Endpoint</th>
+                        <th>Destination Tenant</th>
+                        <th>Destination Endpoint</th>
+                        <th>Interval Time</th>
+                        <th>Transferred</th>
+                        <th>Bandwidth</th>
+                        <th>Retr</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for res in test_result.tcp %}
+                    <tr>
+                        <td>{{ res.src_tenant.0  }}</td>
+                        <td>{{ res.src_ep }}</td>
+                        <td>{{ res.dest_tenant.0 }}</td>
+                        <td>{{ res.dest_ep }}</td>
+                        <td>{{ res.interval_time }}</td>
+                        <td>{{ res.transferred }}</td>
+                        <td>{{ res.bandwidth }}</td>
+                        <td>{{ res.retr }}</td>
+                        <td>{{ res.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </td>
+    </tr>
+        
+    <tr>
+        <td>
+            <div style="padding: 10px; text-align: left">
+                <h4>ICMP Traffic Test Result</h4>
+                <table border="1">
+                    <tr>
+                        <th>Source Tenant</th>
+                        <th>Source Endpoint</th>
+                        <th>Destination Tenant</th>
+                        <th>Destination Endpoint</th>
+                        <th>Packets Transmitted</th>
+                        <th>Packets Received</th>
+                        <th>Packet Loss %</th>
+                        <th>rtt min</th>
+                        <th>rtt avg</th>
+                        <th>rtt max</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for res in test_result.icmp %}
+                    <tr>
+                        <td>{{ res.src_tenant.0 }}</td>
+                        <td>{{ res.src_ep }}</td>
+                        <td>{{ res.dest_tenant.0 }}</td>
+                        <td>{{ res.dest_ep }}</td>
+                        <td>{{ res.packets_transmitted }}</td>
+                        <td>{{ res.packets_received }}</td>
+                        <td>{{ res.packet_loss_percent }}</td>
+                        <td>{{ res.rtt_min }}</td>
+                        <td>{{ res.rtt_avg }}</td>
+                        <td>{{ res.rtt_max }}</td>
+                        <td>{{ res.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </td>
+    </tr>
+        <tr>
+            <td>
+                <b>Please find attached traffic test report.</b>
+            </td>
+        </tr>
+
+
+
+            </table>
+	    </td>
+    </tr>
+	<!--content 2 END-->
+
+
+
+	<!--footer -->
+	<tr>
+
+        <td class="iage_footer" align="center" bgcolor="#ffffff">
+		<!-- padding --><div style="height: 30px; line-height: 30px; font-size: 10px;"> </div>
+
+		<table width="100%" border="0" cellspacing="0" cellpadding="0">
+			<tr><td align="center">
+				<font face="Arial, Helvetica, sans-serif" size="3" color="#96a5b5" style="font-size: 13px;">
+				<span style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #96a5b5;">
+					2016 © OneCloud Consulting. ALL Rights Reserved.
+				</span></font>
+			</td></tr>
+		</table>
+
+		<!-- padding --><div style="height: 30px; line-height: 30px; font-size: 10px;"> </div>
+	</td></tr>
+	<!--footer END-->
+	<tr><td>
+	<!-- padding --><div style="height: 80px; line-height: 80px; font-size: 10px;"> </div>
+	</td></tr>
+</table>
+<!--[if gte mso 10]>
+</td></tr>
+</table>
+<![endif]-->
+
+</td></tr>
+</table>
+
+</div>

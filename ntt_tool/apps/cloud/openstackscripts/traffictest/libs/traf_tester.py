@@ -1,16 +1,15 @@
 import json
 import logging
 import os
+import pickle
 import re
 import time
-
 import fabtools
 
 from itertools import *
 from operator import *
-
 from fabric.api import *
-from prettytable import PrettyTable
+from django.conf import settings
 
 
 traffic_test_script_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts')
@@ -33,10 +32,6 @@ def setup_env(config, endpoints):
         env.gateway = config.get('tenant_ssh_gateway', {}).get(endpoints.get('src_tenant')[0])
     else:
         env.gateway = config.get('tenant_ssh_gateway', {}).get(endpoints.get('dest_tenant')[0])
-
-
-def get_test_cmd(test_method):
-    pass
 
 
 def install_hping(environment):
@@ -98,150 +93,6 @@ def setup_iperf_env(config, src_tenant, dest_tenant, endpoints, test_type):
         env.gateway = config.get('tenant_ssh_gateway', {}).get(dest_tenant[0])
 
 
-def pretty_table_content(config, data):
-    x = PrettyTable(["src_tenant",
-                     "src_ep",
-                     "dest_tenant",
-                     "dest_ep",
-                     "packets_transmitted",
-                     "packets received",
-                     "packet_loss %",
-                     "rtt_min",
-                     "rtt_avg",
-                     "rtt_max",
-                     "test_status"])
-
-    x.align["src_tenant"] = "l"  # Left align source tenant values
-    # One space between column edges and contents (default)
-    x.padding_width = 1
-    status = None
-    dest_ep_regex = ".*-*-(?P<dest_ip>[0-9]+_[0-9]+_[0-9]+_[0-9]+)-.*"
-    for content in data:
-        for k, v in content.items():
-            src_ep = k
-            src_tenant = v['src_tenant']
-            dest_tenant = v['dest_tenant']
-            test_result_files = v['test_result'].keys()
-            for test_result_file in test_result_files:
-                dest_ep_match = re.match(dest_ep_regex, test_result_file)
-                dest_ep = dest_ep_match.group('dest_ip')
-                packet_stats = \
-                    v['test_result'][test_result_file]['packet_stats']
-                packet_loss_percent = \
-                    packet_stats['packet_loss']  # NOQA
-                try:
-                    if (packet_loss_percent <= int(config['traffic']['allowed_delta_percentage'])):  # NOQA
-                            status = 'Success'
-                    else:
-                        status = 'Failed'
-                except ValueError:
-                    status = 'Failed'
-                rtt_stats = v['test_result'][test_result_file]['rtt']
-                x.add_row([src_tenant, src_ep,
-                           dest_tenant, dest_ep.replace('_', '.'),
-                           packet_stats['packets_transmitted'],
-                           packet_stats['packets_received'],
-                           packet_loss_percent,
-                           rtt_stats['rtt_min'],
-                           rtt_stats['rtt_avg'],
-                           rtt_stats['rtt_max'],
-                           status])
-    print x
-
-
-def iperf_tcp_pretty_table_content(config, data):
-    x = PrettyTable(["src_tenant",
-                     "src_ep",
-                     "dest_tenant",
-                     "dest_ep",
-                     "interval_time",
-                     "transferred",
-                     "bandwidth",
-                     "retr",
-                     "test_status"])
-
-    x.align["src_tenant"] = "l"  # Left align source tenant values
-    # One space between column edges and contents (default)
-    x.padding_width = 1
-    status = None
-    dest_ep_regex = ".*-*-(?P<dest_ip>[0-9]+_[0-9]+_[0-9]+_[0-9]+)-.*"
-    for content in data:
-        for k, v in content.items():
-            src_ep = k
-            src_tenant = v['src_tenant']
-            dest_tenant = v['dest_tenant']
-            test_result_files = v['test_result'].keys()
-            for test_result_file in test_result_files:
-                dest_ep_match = re.match(dest_ep_regex, test_result_file)
-                dest_ep = dest_ep_match.group('dest_ip')
-                bandwidth_stats = \
-                    v['test_result'][test_result_file]['bandwidth_stats']
-                if bandwidth_stats['interval_time'] and bandwidth_stats['transferred'] and bandwidth_stats['bandwidth']:
-                    status = "Success"
-                else:
-                    status = "Failed"
-                x.add_row([src_tenant, src_ep,
-                           dest_tenant, dest_ep.replace('_', '.'),
-                           bandwidth_stats['interval_time'],
-                           bandwidth_stats['transferred'],
-                           bandwidth_stats['bandwidth'],
-                           bandwidth_stats['retr'],
-                           status])
-    print x
-
-
-def iperf_udp_pretty_table_content(config, data):
-    x = PrettyTable(["src_tenant",
-                     "src_ep",
-                     "dest_tenant",
-                     "dest_ep",
-                     "interval_time",
-                     "transferred",
-                     "bandwidth",
-                     "jitter",
-                     "loss_datagram",
-                     "total_datagram",
-                     "loss_percent",
-                     "test_status"])
-
-    x.align["src_tenant"] = "l"  # Left align source tenant values
-    # One space between column edges and contents (default)
-    x.padding_width = 1
-    status = None
-    dest_ep_regex = ".*-*-(?P<dest_ip>[0-9]+_[0-9]+_[0-9]+_[0-9]+)-.*"
-    for content in data:
-        for k, v in content.items():
-            src_ep = k
-            src_tenant = v['src_tenant']
-            dest_tenant = v['dest_tenant']
-            test_result_files = v['test_result'].keys()
-            for test_result_file in test_result_files:
-                dest_ep_match = re.match(dest_ep_regex, test_result_file)
-                dest_ep = dest_ep_match.group('dest_ip')
-                bandwidth_stats = \
-                    v['test_result'][test_result_file]['bandwidth_stats']
-                if bandwidth_stats['loss_percent'] != '':
-                    bandwidth_loss_percent = \
-                    bandwidth_stats['loss_percent']+" %"  # NOQA
-                else:
-                    bandwidth_loss_percent = ""
-                if bandwidth_stats['interval_time'] and bandwidth_stats['transferred'] and bandwidth_stats['bandwidth']:
-                    status = "Success"
-                else:
-                    status = "Failed"
-                x.add_row([src_tenant, src_ep,
-                           dest_tenant, dest_ep.replace('_', '.'),
-                           bandwidth_stats['interval_time'],
-                           bandwidth_stats['transferred'],
-                           bandwidth_stats['bandwidth'],
-                           bandwidth_stats['jitter'],
-                           bandwidth_stats['loss_datagram'],
-                           bandwidth_stats['total_datagram'],
-                           bandwidth_loss_percent,
-                           status])
-    print x
-
-
 @task
 @parallel
 def create_test_results_directory(environment):
@@ -280,18 +131,18 @@ def test_tcp(environment, config, server, endpoints, contract, timestamp):
             for src_ep in endpoints:
                 if src_ep == env.host_string:
                     print src_ep
-                
+
                     sudo("iperf3 -s -p 5201 -i 1 > tcptesttrafficserver-%s-%s.txt 2>&1 &" %
                          (env.host_string.replace('.', '_'),
                           timestamp),
                          pty=False)
-       
+
         else:
             print "TCP client execution"
             for dest_ep in endpoints:
                 if dest_ep == env.host_string:
                     print dest_ep
-                
+
                     sudo("iperf3 -c %s -t %s -p 5201 > tcptesttrafficclient-%s-%s-%s.txt 2>&1 &" %
                          (server,
                           config['traffic']['iperf_duration'],
@@ -313,18 +164,18 @@ def test_udp(environment, config, server, endpoints, contract, timestamp):
             for src_ep in endpoints:
                 if src_ep == env.host_string:
                     print src_ep
-                
+
                     sudo("iperf3 -s -p 5202 -i 1 > udptesttrafficserver-%s-%s.txt 2>&1 &" %
                          (env.host_string.replace('.', '_'),
                           timestamp),
                          pty=False)
-       
+
         else:
             print "UDP client execution"
             for dest_ep in endpoints:
                 if dest_ep == env.host_string:
                     print dest_ep
-                
+
                     sudo("iperf3 -c %s -u -t %s -p 5202 > udptesttrafficclient-%s-%s-%s.txt 2>&1 &" %
                          (server,
                           config['traffic']['iperf_duration'],
@@ -349,18 +200,12 @@ def stop_traffic(environment, endpoints, timestamp):
             sudo("kill -SIGINT `pgrep hping3`")
         except SystemExit, e:
             logger.warn("Exception while executing task: %s", str(e))
-        
+
         print "dest_eps are.....", endpoints['dest_eps']
         put(os.path.join(traffic_test_script_dir, "get_ping_statistics.py"), "get_ping_statistics.py")
         out = run("python get_ping_statistics.py %s" % (timestamp))
-
         out_dict = json.JSONDecoder().decode(out)
-
-        output = {'src_tenant': endpoints['src_tenant'],
-                  'dest_tenant': endpoints['dest_tenant'],
-                  'test_result': out_dict}
-        # print output
-
+        output = {'src_tenant': endpoints['src_tenant'], 'dest_tenant': endpoints['dest_tenant'], 'test_result': out_dict}
         return output
     except SystemExit, e:
         logger.warn("Exception while executing task: %s", str(e))
@@ -371,7 +216,7 @@ def stop_traffic(environment, endpoints, timestamp):
 @parallel
 def stop_iperf_traffic(environment, traffic_type, server, dest_ep, src_tenant, dest_tenant, timestamp):
     try:
-        
+
         if server == '':
             try:
                 print "Killing iperf on server"
@@ -407,20 +252,120 @@ def stop_iperf_traffic(environment, traffic_type, server, dest_ep, src_tenant, d
                            timestamp))
 
             out_dict = json.JSONDecoder().decode(out)
-
-            output = {'src_tenant': src_tenant,
-                      'dest_tenant': dest_tenant,
-                      'test_result': out_dict}
-            # print output
-
-            return output
+            return {'src_tenant': src_tenant, 'dest_tenant': dest_tenant, 'test_result': out_dict}
     except SystemExit, e:
         logger.warn("Exception while executing task: %s", str(e))
 
-@task
-@parallel
-def test_method():
-    print "test----------------"
+
+def format_icmp_test_results(data, allowed_delta_percentage):
+    status = None
+    test_results = []
+    dest_ep_regex = ".*-*-(?P<dest_ip>[0-9]+_[0-9]+_[0-9]+_[0-9]+)-.*"
+    for content in data:
+        for k, v in content.items():
+            src_ep = k
+            src_tenant = v['src_tenant']
+            dest_tenant = v['dest_tenant']
+            test_result_files = v['test_result'].keys()
+            for test_result_file in test_result_files:
+                dest_ep_match = re.match(dest_ep_regex, test_result_file)
+                dest_ep = dest_ep_match.group('dest_ip')
+                packet_stats = v['test_result'][test_result_file]['packet_stats']
+                packet_loss_percent = packet_stats['packet_loss']  # NOQA
+                try:
+                    if packet_loss_percent <= int(allowed_delta_percentage):  # NOQA
+                        status = 'Success'
+                    else:
+                        status = 'Failed'
+                except ValueError:
+                    status = 'Failed'
+                rtt_stats = v['test_result'][test_result_file]['rtt']
+                test_results.append({
+                    "src_tenant": src_tenant,
+                    "src_ep": src_ep,
+                    "dest_tenant": dest_tenant,
+                    "dest_ep": dest_ep.replace('_', '.'),
+                    "packets_transmitted": packet_stats['packets_transmitted'],
+                    "packets_received": packet_stats['packets_received'],
+                    "packet_loss_percent": packet_loss_percent,
+                    "rtt_min": rtt_stats['rtt_min'],
+                    "rtt_avg": rtt_stats['rtt_avg'],
+                    "rtt_max": rtt_stats['rtt_max'],
+                    "status": status,
+                })
+    return test_results
+
+
+def format_tcp_test_results(data):
+    test_results = []
+    status = None
+    dest_ep_regex = ".*-*-(?P<dest_ip>[0-9]+_[0-9]+_[0-9]+_[0-9]+)-.*"
+    for content in data:
+        for k, v in content.items():
+            src_ep = k
+            src_tenant = v['src_tenant']
+            dest_tenant = v['dest_tenant']
+            test_result_files = v['test_result'].keys()
+            for test_result_file in test_result_files:
+                dest_ep_match = re.match(dest_ep_regex, test_result_file)
+                dest_ep = dest_ep_match.group('dest_ip')
+                bandwidth_stats = v['test_result'][test_result_file]['bandwidth_stats']
+                if bandwidth_stats['interval_time'] and bandwidth_stats['transferred'] and bandwidth_stats['bandwidth']:
+                    status = "Success"
+                else:
+                    status = "Failed"
+                test_results.append({
+                    "src_tenant": src_tenant,
+                    "src_ep": src_ep,
+                    "dest_tenant": dest_tenant,
+                    "dest_ep": dest_ep.replace('_', '.'),
+                    "interval_time": bandwidth_stats['interval_time'],
+                    "transferred": bandwidth_stats['transferred'],
+                    "bandwidth": bandwidth_stats['bandwidth'],
+                    "retr": bandwidth_stats['retr'],
+                    "status": status
+                })
+    return test_results
+
+
+def format_udp_test_results(data):
+    test_results = []
+    status = None
+    dest_ep_regex = ".*-*-(?P<dest_ip>[0-9]+_[0-9]+_[0-9]+_[0-9]+)-.*"
+    for content in data:
+        for k, v in content.items():
+            src_ep = k
+            src_tenant = v['src_tenant']
+            dest_tenant = v['dest_tenant']
+            test_result_files = v['test_result'].keys()
+            for test_result_file in test_result_files:
+                dest_ep_match = re.match(dest_ep_regex, test_result_file)
+                dest_ep = dest_ep_match.group('dest_ip')
+                bandwidth_stats = v['test_result'][test_result_file]['bandwidth_stats']
+                if bandwidth_stats['loss_percent'] != '':
+                    bandwidth_loss_percent = \
+                    bandwidth_stats['loss_percent']+" %"  # NOQA
+                else:
+                    bandwidth_loss_percent = ""
+                if bandwidth_stats['interval_time'] and bandwidth_stats['transferred'] and bandwidth_stats['bandwidth']:
+                    status = "Success"
+                else:
+                    status = "Failed"
+                test_results.append({
+                    "src_tenant": src_tenant,
+                    "src_ep": src_ep,
+                    "dest_tenant": dest_tenant,
+                    "dest_ep": dest_ep.replace('_', '.'),
+                    "interval_time": bandwidth_stats['interval_time'],
+                    "transferred": bandwidth_stats['transferred'],
+                    "bandwidth": bandwidth_stats['bandwidth'],
+                    "jitter": bandwidth_stats['jitter'],
+                    "loss_datagram": bandwidth_stats['loss_datagram'],
+                    "total_datagram": bandwidth_stats['total_datagram'],
+                    "bandwidth_loss_percent": bandwidth_loss_percent,
+                    "status": status
+                })
+    return test_results
 
 
 def start_task(config, endpoints_list, action, testPrefix=None):
@@ -440,8 +385,7 @@ def start_task(config, endpoints_list, action, testPrefix=None):
                     setup_env(config, endpoints)
                     execute(create_test_results_directory, env)
                     execute(install_hping, env)
-                    execute(test_ping, env, config,
-                            endpoints, contract, timestamp)
+                    execute(test_ping, env, config, endpoints, contract, timestamp)
         for fullendpoints in iperf_endpoint_list:
             endpoints = {}
             endpoints['contract'] = fullendpoints['contract']
@@ -515,19 +459,14 @@ def start_task(config, endpoints_list, action, testPrefix=None):
                         table_data = execute(stop_iperf_traffic, env, 'udp', server, dest_ep, endpoints['src_tenant'], endpoints['dest_tenant'], timestamp)
                         udp_output_table_data_list.append(table_data)
     
+    traffic_test_result = {
+        "icmp": format_icmp_test_results(output_table_data_list, config.get('traffic', {}).get('allowed_delta_percentage')),
+        "tcp": format_tcp_test_results(tcp_output_table_data_list),
+        "udp": format_udp_test_results(udp_output_table_data_list,)
+    }
 
+    traffic_test_result_path = settings.MEDIA_ROOT
+    pickle.dump(traffic_test_result, open(os.path.join(traffic_test_result_path, "traffic-test-report.txt"), "wb"))
 
-    print "Traffic Test Type: "+config['traffic']['type']
-    print "\n"
-    if output_table_data_list:
-        print "ICMP Traffic Results"
-        pretty_table_content(config, output_table_data_list)
-        print "\n"
-    if tcp_output_table_data_list:
-        print "TCP Traffic Results"
-        iperf_tcp_pretty_table_content(config, tcp_output_table_data_list)
-        print "\n"
-    if udp_output_table_data_list:
-        print "UDP Traffic Results"
-        iperf_udp_pretty_table_content(config, udp_output_table_data_list)
-        print "\n"
+    return traffic_test_result
+

@@ -14,6 +14,19 @@ from openstackscripts.credentials import *
 from openstackscripts.endpoints import DiscoverEndpoints, LaunchEndpoints
 from openstackscripts.traffictest.traffictest import TrafficTest
 
+import os
+import pickle
+from django.core.mail import EmailMultiAlternatives
+from django.template import Context
+from django.template.loader import get_template
+from django.template.loader import render_to_string
+
+
+from django.core.mail import EmailMessage
+from email.mime.text import MIMEText
+from django.conf import settings
+
+
 
 class CloudViewSet(viewsets.ModelViewSet):
     queryset = Cloud.objects.all()
@@ -263,3 +276,27 @@ class TrafficViewSet(viewsets.ModelViewSet):
         traffic_test = TrafficTest(pk)
         test_result = traffic_test.run_test()
         return Response(test_result)
+
+    @detail_route(methods=["get"], url_path="email/report")
+    def email_report(self, request, pk=None):
+        context = None
+        file_path = os.path.join(settings.MEDIA_ROOT, "traffic-test-report.txt")
+        with open(file_path, 'r') as f:
+            test_result = pickle.load(f)  # load file content as mydict
+            context = Context({
+                'test_result': test_result,
+                'reciever_name': request.user.username,
+            })
+
+        sender = settings.EMAIL_HOST_USER
+        message = get_template('email_templates/traffic_test_report.html').render(context)
+        msg = EmailMessage("Traffic Test Report", message, to=['abdulgaffar@onecloudinc.com', request.user.email], from_email=sender)
+        msg.content_subtype = 'html'
+
+        f = file(file_path, 'rb')
+        attachment = MIMEText(f.read())
+        attachment.add_header('Content-Disposition', 'attachment', filename="traffic-test-report.txt")
+        msg.attach(attachment)
+        msg.send()
+        return Response(True)
+

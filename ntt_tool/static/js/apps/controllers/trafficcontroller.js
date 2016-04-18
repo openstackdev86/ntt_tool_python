@@ -190,19 +190,34 @@ nttApp.controller('TrafficViewCtrl', function($scope, $routeParams, trafficServi
 
 
 
-    $scope.testResults = [];
-    $scope.getTestResults = function () {
-
-    };
+    $scope.testResult = {};
+    $scope.testResultRunning = false;
     $scope.runTrafficTest = function (trafficId) {
-        // $scope.testResults.push({
-        //     "id": "TEST1",
-        //     "stared_on":"29-12-16 23:55:55",
-        //     "completed_on":"29-12-16 23:55:55",
-        //     "status": "inprogress",
-        // });
+        $scope.testResultRunning = true;
         trafficService.runTrafficTest(trafficId).then(function (response) {
-            testResults.push(response);
+            $scope.testResult = response;
+            $scope.testResultRunning = false;
         });
     };
+
+    var doc = new jsPDF();
+    var specialElementHandlers = {
+        '#editor': function (element, renderer) {
+            return true;
+        }
+    };
+    $scope.exportTrafficTestResults = function () {
+        doc.fromHTML($('#traffic-test-results').html(), 10, 10, {
+            'width': 200,
+            'elementHandlers': specialElementHandlers
+        });
+        doc.save('traffic-test-report.pdf');
+    };
+    
+    
+    $scope.emailReport = function () {
+        trafficService.emailReport($scope.traffic.id).then(function (response) {
+            console.log(response)
+        });
+    }
 });

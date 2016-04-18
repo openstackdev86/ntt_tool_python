@@ -153,3 +153,10 @@ JWT_AUTH = {
 }
 
 # LOGIN_REDIRECT_URL = '/api/profile/'
+
+# E-Mail Settings
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = "587"
+EMAIL_HOST_USER = 'abdulgaffar@onecloudinc.com'
+EMAIL_HOST_PASSWORD = 'abdulgaffar'
+EMAIL_USE_TLS = True

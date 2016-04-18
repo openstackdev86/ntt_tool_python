@@ -14,8 +14,8 @@ class TrafficTest(object):
         setup_config = self.generate_setup_config()
         traf_tester.start_task(setup_config, endpoints_list, "start", "_".join(self.traffic.name.split()))
         time.sleep(60 * traffic_test_duration)
-        traf_tester.start_task(setup_config, endpoints_list, "stop", "_".join(self.traffic.name.split()))
-        return True
+        test_result = traf_tester.start_task(setup_config, endpoints_list, "stop", "_".join(self.traffic.name.split()))
+        return test_result
 
     def stop_test(self):
         pass
@@ -61,10 +61,6 @@ class TrafficTest(object):
                     config.get('contract').append(test_method_contracts(test_method))
                 config['dest_tenant'] = config['src_tenant']
                 endpoint_contract_configs.append(config)
-
-        print "*"*200
-        print endpoint_contract_configs
-        print "\n\n\n\n"
         return endpoint_contract_configs
 
     def generate_setup_config(self):

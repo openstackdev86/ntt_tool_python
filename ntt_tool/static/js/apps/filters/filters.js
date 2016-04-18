@@ -5,3 +5,13 @@ nttApp.filter('capitalize', function () {
         }) : '';
     }
 });
+
+nttApp.filter('isEmptyObject', function(){
+    return function (obj) {
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop))
+                return false;
+        }
+        return true;
+    };
+});

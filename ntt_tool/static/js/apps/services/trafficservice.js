@@ -50,6 +50,10 @@ nttApp.service('trafficService', function(dataService){
     this.runTrafficTest = function(pk){
         return dataService.get('/api/traffic/' + pk + '/run/test/');
     };
+    
+    this.emailReport = function (pk) {
+        return dataService.get('/api/traffic/' + pk + '/email/report/');
+    }
 });
 
 
